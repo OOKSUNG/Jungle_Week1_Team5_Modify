@@ -27,6 +27,8 @@ public:
 	void setPos(FVector newPos);
 	void setColor(FColor newColor);
 	void setRadius(float newRadius);
+	FVector getPos();
+	FColor getColor();
 	virtual void Render(URenderer& renderer) = 0;
 private:
 	int getFirstEmpty();

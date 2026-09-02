@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <iostream>
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_internal.h"
@@ -12,6 +13,8 @@
 #include "Ball.h"
 #include "Circle.h"
 #include "Triangle.h"
+#include "InputManager.h"
+#include "Player.h"
 
 enum ETypePrimitive
 {
@@ -36,8 +39,55 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) 
 	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_SPACE:
+			InputManager::GetInstance()->OnKeyDown(SPACE);
+			break;
+		case VK_LEFT:
+			InputManager::GetInstance()->OnKeyDown(LEFT);
+			break;
+		case VK_RIGHT:
+			InputManager::GetInstance()->OnKeyDown(RIGHT);
+			break;
+		case VK_UP:
+			InputManager::GetInstance()->OnKeyDown(UP);
+			break;
+		case VK_DOWN:
+			InputManager::GetInstance()->OnKeyDown(DOWN);
+			break;
+		case VK_RETURN:
+			InputManager::GetInstance()->OnKeyDown(ENTER);
+			break;
+		}
+		return 0;
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case VK_SPACE:
+			InputManager::GetInstance()->OnKeyUP(SPACE);
+			break;
+		case VK_LEFT:
+			InputManager::GetInstance()->OnKeyUP(LEFT);
+			break;
+		case VK_RIGHT:
+			InputManager::GetInstance()->OnKeyUP(RIGHT);
+			break;
+		case VK_UP:
+			InputManager::GetInstance()->OnKeyUP(UP);
+			break;
+		case VK_DOWN:
+			InputManager::GetInstance()->OnKeyUP(DOWN);
+			break;
+		case VK_RETURN:
+			InputManager::GetInstance()->OnKeyUP(ENTER);
+			break;
+		}
+		return 0;
 	case WM_DESTROY:
 		// Signal that the app should quit
+		OutputDebugStringA("!!! WM_DESTROY !!!\n");
 		PostQuitMessage(0);
 		break;
 	default:
@@ -187,6 +237,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	testCircle3->setColor(FColor{ 0.2f, 0.3f, 0.5f });
 	testTris = new Triangle(FVector{ 0.0f, 0.7f, 0.2f }, FColor{ 0.5f, 0.3f, 0.5f }, 0.1f);
 
+	UPlayer player;
+
 	// Main Loop (Quit Message가 들어오기 전까지 아래 Loop를 무한히 실행하게 됨)
 	while (bIsExit == false)
 	{
@@ -215,6 +267,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 		////////////////////////////////////////////////////
 		// 매번 실행되는 코드를 여기에 추가
 
+		player.Update();
+
+
 		// 준비 작업
 		renderer.Prepare();
 		renderer.PrepareShader();
@@ -222,7 +277,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 		Renderable::RenderAll(renderer);
 
 		
-
 		/*
 		if (count < 0)
 		{
