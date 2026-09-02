@@ -8,5 +8,5 @@ Triangle::Triangle(FVector newPos,
 
 void Triangle::Render(URenderer& renderer) {
 	renderer.UpdateConstant(pos, radius, color);
-	renderer.RenderPrimitive(renderer.VertexBufferTriangle, renderer.NumVerticesSphere);
+	renderer.RenderPrimitive(renderer.VertexBufferTriangle, renderer.NumVerticesTriangle);
 }
