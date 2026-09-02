@@ -6,6 +6,8 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
+#include <string>
+#include <vector>
 
 #include "Math.h"
 
@@ -13,6 +15,8 @@ struct FVertexSimple
 {
 	float x, y, z;
 	float r, g, b, a;
+	float u;
+	float v;
 };
 
 struct FConstants
@@ -20,6 +24,41 @@ struct FConstants
 	FVector Offset;
 	float Scale;
 	FColor Color;
+};
+
+enum EImage
+{
+	EI_BackgroundStart,
+	EI_BackgroundStart_With_Menu,
+	EI_BackgroundGame,
+	EI_BackgroundEnd,
+	
+	EI_ButtonCredit,
+	EI_ButtonReplay,
+	EI_ButtonExit,
+	
+	EI_StringTotalScore,
+	EI_StringGameClear,
+
+	EI_Number_9,
+	EI_Number_8,
+	EI_Number_7,
+	EI_Number_6,
+	EI_Number_5,
+	EI_Number_4,
+	EI_Number_3,
+	EI_Number_2,
+	EI_Number_1,
+	EI_Number_0,
+	
+	EI_BallYellow,
+	EI_BallRed,
+	EI_BallPurple,
+	EI_BallGreen,
+	EI_BallBlue,
+	EI_BallBlack,
+
+	EI_MAX
 };
 
 class URenderer
@@ -64,6 +103,14 @@ public:
 	void ReleaseConstantBuffer();
 	void UpdateConstant(FVector offset, float scale, FColor color);
 
+	// Todo: Fix, move to other class
+	void InitializeResources();
+
+	void CreateTexture(const std::string fileName, ID3D11ShaderResourceView** outTextureSRV);
+	void CreateSampler();
+
+	void SetTextureSRV(EImage eImage);
+
 public:
 	// Direct3D 11 장치와 장치 컨텍스트 및 스왑 체인 관리를 위한 포인터들
 	ID3D11Device* Device = nullptr; // GPU와 통신하기 위한 Direct3d 장치
@@ -84,12 +131,22 @@ public:
 	ID3D11InputLayout* SimpleInputLayout;
 	unsigned int Stride;
 
+	enum
+	{
+		MAX_TEXTURES_COUNT = 10
+	};
 
-	// Todo: Fix
+	// Todo: Fix, sources
 	ID3D11Buffer* VertexBufferSphere;
 	UINT NumVerticesSphere;
 	ID3D11Buffer* VertexBufferTriangle;
 	UINT NumVerticesTriangle;
 	ID3D11Buffer* VertexBufferSquare;
 	UINT NumVerticesSquare;
+
+	ID3D11Texture2D* Texture;
+	//ID3D11ShaderResourceView* TextureResourceView;
+	ID3D11SamplerState* SamplerState;
+
+	std::vector<ID3D11ShaderResourceView*> TextureSRVs;
 };

@@ -12,6 +12,8 @@
 #include "Ball.h"
 #include "Circle.h"
 #include "Triangle.h"
+#include "Square.h"
+#include "SoundManager.h"
 
 enum ETypePrimitive
 {
@@ -63,8 +65,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	RegisterClassW(&wndclass);
 
 	// 1024x1024 크기에 윈도우 생성
-	HWND hWnd = CreateWindowExW(0, WindowClass, Title, WS_POPUP | WS_VISIBLE | WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, 1024, 1024, nullptr, nullptr, hInstance, nullptr);
+	// HWND hWnd = CreateWindowExW(0, WindowClass, Title, WS_POPUP | WS_VISIBLE | WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1024, 1024, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindowExW(0, WindowClass, Title, WS_POPUP | WS_VISIBLE | WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1024, 1024, nullptr, nullptr, hInstance, nullptr);
 
 	// 각종 생성하는 코드를 여기에 추가
 
@@ -82,127 +84,53 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	ImGui_ImplWin32_Init((void*)hWnd);
 	ImGui_ImplDX11_Init(renderer.Device, renderer.DeviceContext);
 
-	// 버텍스 생성
-	FVertexSimple triangle_vertices[] =
-	{
-		{  0.0f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f }, // Top vertex (red)
-		{  1.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f }, // Bottom-right vertex (green)
-		{ -1.0f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f }  // Bottom-left vertex (blue)
-	};
-
-	FVertexSimple square_vertices[] =
-	{
-		// Front face (Z+)
-		{ -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, 1.0f }, // Bottom-left (red)
-		{ -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f, 1.0f }, // Top-left (yellow)
-		{  0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 1.0f }, // Bottom-right (green)
-		{ -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f, 1.0f }, // Top-left (yellow)
-		{  0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f }, // Top-right (blue)
-		{  0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 1.0f }, // Bottom-right (green)
-	};
-
-	// 버텍스 버퍼 생성
-	UINT numVerticesTriangle = sizeof(triangle_vertices) / sizeof(FVertexSimple);
-	UINT numVerticesCube = sizeof(square_vertices) / sizeof(FVertexSimple);
-	UINT numVerticesSphere = sizeof(sphere_vertices) / sizeof(FVertexSimple);
-
-	ID3D11Buffer* vertexBufferTriangle = renderer.CreateVertexBuffer(triangle_vertices, sizeof(triangle_vertices));
-	ID3D11Buffer* vertexBufferSquare = renderer.CreateVertexBuffer(square_vertices, sizeof(square_vertices));
-	ID3D11Buffer* vertexBufferSphere = renderer.CreateVertexBuffer(sphere_vertices, sizeof(sphere_vertices));
-
-
-	// Todo: Fix
-	renderer.VertexBufferSphere = renderer.CreateVertexBuffer(sphere_vertices, sizeof(sphere_vertices));
-	renderer.NumVerticesSphere = sizeof(sphere_vertices) / sizeof(FVertexSimple);
-	renderer.VertexBufferTriangle = renderer.CreateVertexBuffer(triangle_vertices, sizeof(triangle_vertices));
-	renderer.NumVerticesTriangle = sizeof(triangle_vertices) / sizeof(FVertexSimple);
-
+	
 	ETypePrimitive typePrimitive = EPT_Cube;
 
-	int count = 0;
-	int MaxCount = 50;
-
-	UPrimitive** PrimitiveList;
-	PrimitiveList = new UPrimitive* [MaxCount];
-	
-	for (int i = 0; i < MaxCount; i++)
-	{
-		PrimitiveList[i] = nullptr;
-	}
-
 	// 도형의 움직임 정도를 담을 offset 변수
-	FVector offset(0.0f);
-	FVector velocity(0.0f);
-
-	const float leftBorder = -1.0f;
-	const float rightBorder = 1.0f;
-	const float topBorder = -1.0f;
-	const float bottomBorder = 1.0f;
-	const float sphereRadius= 1.0f;
-	const float ballSpeed = 1.0f;
-
-	const int targetFPS = 30;
+	//const int targetFPS = 30;
+	const int targetFPS = 2;
 	const double targetFrameTime = 1000.0 / targetFPS;
 
 	LARGE_INTEGER frequency;
 	QueryPerformanceFrequency(&frequency);
 
-	LARGE_INTEGER startTime, endTime;
+	LARGE_INTEGER startTime;
+	LARGE_INTEGER endTime;
 	double elapsedTime = 0.0;
 
 	float DeltaTime = (float)(elapsedTime / 1000.0);
 	bool bIsExit = false;
 
-	Circle* testCircle;
-	testCircle = new Circle();
-	testCircle->setPos(FVector{ 0.0f, 0.1f, 0.2f });
-	testCircle->setRadius(0.1f);
-	testCircle->setColor(FColor{ 0.5f, 0.1f, 0.2f });
+	// Initialize
+	{
+		renderer.InitializeResources();
 
-	Circle* testCircle2;
-	testCircle2 = new Circle();
-	testCircle2->setPos(FVector{ 0.5f, 0.1f, 0.2f });
-	testCircle2->setRadius(0.1f);
-	testCircle2->setColor(FColor{ 0.5f, 0.5f, 0.2f });
+		SoundManager::CreateInstance();
+	}
 
-	Circle* testCircle3;
-	testCircle3 = new Circle();
-	testCircle3->setPos(FVector{ 0.0f, 0.5f, 0.2f });
-	testCircle3->setRadius(0.1f);
-	testCircle3->setColor(FColor{ 0.2f, 0.3f, 0.5f });
+	// Start scene
+	{
+		Square* startBackGround = new Square(FVector{ 0.0f, 0.0f, 0.0f }, FColor{ 0.5f, 0.3f, 0.5f }, 0.2f);
 
+		// delete startBackGround;
 
-	Triangle* testTris = new Triangle(FVector{ 0.0f, 0.7f, 0.2f }, FColor{ 0.5f, 0.3f, 0.5f }, 0.1f);
-	delete testTris;
+		renderer.DeviceContext->PSSetShaderResources(0, 1, &renderer.TextureSRVs[EI_Number_0]);
+		SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_BGM);
+	}
 
-	//Renderable::RenderAll(renderer);
+	bool bWithMenu = false;
 
-	delete testCircle;
-	delete testCircle2;
-	delete testCircle3;
-
-	testCircle3 = new Circle();
-	testCircle3->setPos(FVector{ 0.0f, 0.5f, 0.2f });
-	testCircle3->setRadius(0.1f);
-	testCircle3->setColor(FColor{ 0.2f, 0.3f, 0.5f });
-	testTris = new Triangle(FVector{ 0.0f, 0.7f, 0.2f }, FColor{ 0.5f, 0.3f, 0.5f }, 0.1f);
-
-	// Main Loop (Quit Message가 들어오기 전까지 아래 Loop를 무한히 실행하게 됨)
+	// Main Loop 
 	while (bIsExit == false)
 	{
 		DeltaTime = (float)(elapsedTime / 1000.0);
-
 		QueryPerformanceCounter(&startTime);
-
 		MSG msg;
 
-		// 처리할 메시지가 더 이상 없을 때까지 수행
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
-			// 키 입력 메시지를 번역
 			TranslateMessage(&msg);
-
-			// 메시지를 적절한 위도우 프리시저에 전달, 메시지가 위에서 등록한 WndProc 으로 전달됨
 			DispatchMessage(&msg);
 
 			if (msg.message == WM_QUIT)
@@ -212,189 +140,62 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 			}
 		}
 
-		////////////////////////////////////////////////////
-		// 매번 실행되는 코드를 여기에 추가
-
-		// 준비 작업
-		renderer.Prepare();
-		renderer.PrepareShader();
-
-		Renderable::RenderAll(renderer);
-
-		
-
-		/*
-		if (count < 0)
+		// System update
 		{
-			count = 0;
-		}
-		
-		if (count >= MaxCount)
-		{
-			int NewMaxCount = MaxCount * 2;
-
-			UPrimitive** NewList = new UPrimitive* [NewMaxCount];
-
-			for (int i = 0; i < MaxCount; i++)
-			{
-				NewList[i] = PrimitiveList[i];
-			}
-
-			for (int i = MaxCount; i < NewMaxCount; i++)
-			{
-				NewList[i] = nullptr;
-			}
-
-			delete[] PrimitiveList;
-
-			PrimitiveList = NewList;
-			MaxCount = NewMaxCount;
-		}
-
-		// Ball 생성
-		if (count > UBall::TotalNumBalls)
-		{
-			int diff = count - UBall::TotalNumBalls;
-
-			for (int i = 0; i < MaxCount; i++)
-			{
-				if (PrimitiveList[i] == nullptr && diff > 0)
-				{
-					PrimitiveList[i] = new UBall;
-					diff--;
-				}
-			}
-		}
-
-		// Ball 소멸
-		if (count < UBall::TotalNumBalls)
-		{
-			int diff = UBall::TotalNumBalls - count;
-
-			while (diff != 0)
-			{
-				int curr = UBall::TotalNumBalls;
-
-				int index = rand() % MaxCount;
-
-				if (PrimitiveList[index] == nullptr) continue;
-
-				delete PrimitiveList[index];
-
-				PrimitiveList[index] = nullptr;
-
-				diff--;
-			}
+			SoundManager::GetInstance()->Update();
 		}
 
 		// Update
-		for (int i = 0; i < MaxCount; i++)
 		{
-			UPrimitive* a = PrimitiveList[i];
 
-			if (a == nullptr) continue;
-
-			float scaleMod = a->GetRadius();
-
-			a->Gravity(DeltaTime);
-
-			offset = a->GetLocation();
-			velocity = a->GetVelocity();
-
-			offset.x += velocity.x * DeltaTime;
-			offset.y += velocity.y * DeltaTime;
-
-			float renderRadius = sphereRadius * scaleMod;
-			if (offset.x < leftBorder + renderRadius)
-			{
-				offset.x = leftBorder + renderRadius;
-				velocity.x *= -1.0f;
-			}
-			if (offset.x > rightBorder - renderRadius)
-			{
-				offset.x = rightBorder - renderRadius;
-				velocity.x *= -1.0f;
-			}
-			if (offset.y < topBorder + renderRadius)
-			{
-				offset.y = topBorder + renderRadius;
-				velocity.y *= -1.0f;
-			}
-			if (offset.y > bottomBorder - renderRadius)
-			{
-				offset.y = bottomBorder - renderRadius;
-				velocity.y *= -1.0f;
-			}
-
-			a->SetLocation(offset);
-			a->SetVelocity(velocity);
-
-			// offset을 상수 버퍼로 업데이트
-			FColor tempColor = { 1.0, 0.0, 0.0, 1.0 };
-			renderer.UpdateConstant(offset, scaleMod, tempColor);
-			//renderer.RenderPrimitive(vertexBufferSphere, numVerticesSphere);
-
-			// Todo: Fix
-			renderer.RenderPrimitive(renderer.VertexBufferSphere, renderer.NumVerticesSphere);
-
-			switch (typePrimitive)
-			{
-			case EPT_Triangle:
-				renderer.RenderPrimitive(vertexBufferTriangle, numVerticesTriangle);
-				break;
-			case EPT_Cube:
-				renderer.RenderPrimitive(vertexBufferSquare, numVerticesCube);
-				break;
-			case EPT_Sphere:
-				renderer.RenderPrimitive(vertexBufferSphere, numVerticesSphere);
-				break;
-			}
 		}
-		
-		for (int i = 0; i < MaxCount; i++) 
+
+		// Render
 		{
-			UPrimitive* a = PrimitiveList[i];
+			renderer.Prepare();
+			renderer.PrepareShader();
 
-			if (a == nullptr) continue;
-
-			for (int j = i + 1; j < MaxCount; j++) 
+			// Todo: Test start scene
 			{
-				UPrimitive* b = PrimitiveList[j];
-
-				if (b == nullptr ) continue;
-
-				if (a->CheckCollision(b))
+				if (bWithMenu)
 				{
-					a->ResolveCollision(b);
+					renderer.SetTextureSRV(EImage::EI_Number_9);
+					bWithMenu = false;
 				}
+				/*
+				else
+				{
+					renderer.SetTextureSRV(EImage::EI_BallRed);
+					bWithMenu = true;
+				}
+				*/
 			}
+
+			Renderable::RenderAll(renderer);
 		}
-		*/
 
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-
-		// 이후 ImGui UI 컨트롤 추가는 여기에 위치
-		ImGui::Begin("Jungle Property Window");
+		// Update ImGui
 		{
-			ImGui::Text("Hello Jungle World!");
-			ImGui::Checkbox("Gravity", &UBall::bGravity);
+			ImGui_ImplDX11_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
 
-			ImGui::InputInt("Number of Balls", &count);
+			// 이후 ImGui UI 컨트롤 추가는 여기에 위치
+			ImGui::Begin("Jungle Property Window");
+			{
+				ImGui::Text("Hello Jungle World!");
+			}
+			ImGui::End();
+
+			ImGui::Render();
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		}
-		ImGui::End();
 
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-		// 현재 화면에 보여지는 버퍼와 그리기 작업을 위한 버퍼를 서로 교환
 		renderer.SwapBuffer();
 
 		do
 		{
 			Sleep(0);
-
 			QueryPerformanceCounter(&endTime);
 
 			elapsedTime = (endTime.QuadPart - startTime.QuadPart) * 1000.0 / frequency.QuadPart;
@@ -408,13 +209,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
-	renderer.ReleaseVertexBuffer(vertexBufferTriangle);
-	renderer.ReleaseVertexBuffer(vertexBufferSquare);
-	renderer.ReleaseVertexBuffer(vertexBufferSphere);
-
 	renderer.ReleaseConstantBuffer();
 	renderer.ReleaseShader();
 	renderer.Release();
+
+	//renderer.ReleaseVertexBuffer(vertexBufferTriangle);
+	//renderer.ReleaseVertexBuffer(vertexBufferSquare);
+	//renderer.ReleaseVertexBuffer(vertexBufferSphere);
 
 	return 0;
 }

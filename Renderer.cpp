@@ -1,4 +1,12 @@
+
+#include <vector>
+
 #include "Renderer.h"
+
+#include "Sphere.h"
+
+#define STB_IMAGE_IMPLEMENTATION 
+#include "stb_image.h"
 
 void URenderer::Create(HWND hWindow)
 {
@@ -128,6 +136,18 @@ void URenderer::Release()
 
 	ReleaseFrameBuffer();
 	ReleaseDeviceAndSwapChain();
+
+	// Todo: fix
+	{
+		ReleaseVertexBuffer(VertexBufferTriangle);
+		ReleaseVertexBuffer(VertexBufferSquare);
+		//ReleaseVertexBuffer(VertexBufferSphere);
+	
+		for (ID3D11ShaderResourceView* textureSRV : TextureSRVs)
+		{
+			textureSRV->Release();
+		}
+	}
 }
 
 // 스왑체인의 백버퍼와 프론트 버퍼를 교체하며 화면에 출력
@@ -150,7 +170,8 @@ void URenderer::CreateShader()
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 4 * 3, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 + 4 * 4, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	Device->CreateInputLayout(layout, ARRAYSIZE(layout), vertexshaderCSO->GetBufferPointer(), vertexshaderCSO->GetBufferSize(), &SimpleInputLayout);
@@ -181,10 +202,10 @@ void URenderer::ReleaseShader()
 		SimpleVertexShader = nullptr;
 	}
 }
-
 void  URenderer::Prepare()
 {
 	DeviceContext->ClearRenderTargetView(FrameBufferRTV, ClearColor);
+
 
 	DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -200,6 +221,17 @@ void URenderer::PrepareShader()
 	DeviceContext->VSSetShader(SimpleVertexShader, nullptr, 0);
 	DeviceContext->PSSetShader(SimplePixelShader, nullptr, 0);
 	DeviceContext->IASetInputLayout(SimpleInputLayout);
+		
+	// Todo: Move to other class
+	/*
+	ID3D11ShaderResourceView* pixelResources[1] = 
+	{ 
+		TextureResourceView,
+	};
+	DeviceContext->PSSetShaderResources(0, 1, &TextureSRVs[0]);
+	*/
+
+	DeviceContext->PSSetSamplers(0, 1, &SamplerState);
 
 	if (ConstantBuffer)
 	{
@@ -273,3 +305,142 @@ void URenderer::UpdateConstant(FVector offset, float scale, FColor color)
 		DeviceContext->Unmap(ConstantBuffer, 0);
 	}
 }
+
+void URenderer::CreateTexture(const std::string fileName, ID3D11ShaderResourceView** outTextureSRV)
+{
+	int width;
+	int height;
+	int channels;
+
+	unsigned char* loadImage = stbi_load(fileName.c_str(), &width, &height, &channels, 4);
+	//assert(channels == 4);
+
+	std::vector<uint8_t> image;
+
+	image.resize(width * height * channels);
+	memcpy(image.data(), loadImage, image.size() * sizeof(uint8_t));
+
+	// Create texture.
+	D3D11_TEXTURE2D_DESC txtDesc = {};
+	txtDesc.Width = width;
+	txtDesc.Height = height;
+	txtDesc.MipLevels = txtDesc.ArraySize = 1;
+	txtDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	txtDesc.SampleDesc.Count = 1;
+	txtDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	txtDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	// Fill in the subresource data.
+	D3D11_SUBRESOURCE_DATA InitData;
+	InitData.pSysMem = image.data();
+	InitData.SysMemPitch = txtDesc.Width * sizeof(uint8_t) * channels;
+	// InitData.SysMemSlicePitch = 0;
+
+	Device->CreateTexture2D(&txtDesc, &InitData, &Texture);
+	assert(Texture != nullptr);
+
+	Device->CreateShaderResourceView(Texture, nullptr, outTextureSRV);
+	
+	Texture->Release();
+	stbi_image_free(loadImage);
+}
+
+void URenderer::CreateSampler()
+{
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// Create the Sample State
+	Device->CreateSamplerState(&sampDesc, &SamplerState);
+}
+
+void URenderer::InitializeResources()
+{
+	// Todo: Fix
+
+	// 버텍스 생성
+	FVertexSimple triangle_vertices[] =
+	{
+		{  0.0f,  1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f }, // Top vertex (red)
+		{  1.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f }, // Bottom-right vertex (green)
+		{ -1.0f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f }  // Bottom-left vertex (blue)
+	};
+
+	FVertexSimple square_vertices[] =
+	{
+		// Front face (Z+)
+		{ -1.0f, -1.0f,  0.5f,  1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 1.0f }, // Bottom-left (red)
+		{ -1.0f, 1.0f,  0.5f,  1.0f, 1.0f, 0.0f, 1.0f,  0.0f, 0.0f }, // Top-left (yellow)
+		{ 1.0f, -1.0f,  0.5f,  0.0f, 1.0f, 0.0f, 1.0f,  1.0f, 1.0f }, // Bottom-right (green)
+
+		{ -1.0f, 1.0f, 0.5f,  1.0f, 1.0f, 0.0f, 1.0f,  0.0f, 0.0f }, // Top-left (yellow)
+		{ 1.0f, 1.0f, 0.5f,  0.0f, 0.0f, 1.0f, 1.0f,  1.0f, 0.0f }, // Top-right (blue)
+		{  1.0f, -1.0f, 0.5f,  0.0f, 1.0f, 0.0f, 1.0f,  1.0f, 1.0f }, // Bottom-right (green)
+	};
+
+	{
+		// 버텍스 버퍼 생성
+		//renderer.VertexBufferSphere = renderer.CreateVertexBuffer(sphere_vertices, sizeof(sphere_vertices));
+		//renderer.NumVerticesSphere = sizeof(sphere_vertices) / sizeof(FVertexSimple);
+		VertexBufferTriangle = CreateVertexBuffer(triangle_vertices, sizeof(triangle_vertices));
+		NumVerticesTriangle = sizeof(triangle_vertices) / sizeof(FVertexSimple);
+
+		VertexBufferSquare = CreateVertexBuffer(square_vertices, sizeof(square_vertices));
+		NumVerticesSquare = sizeof(square_vertices) / sizeof(FVertexSimple);
+	}
+
+	// Create textures
+	{
+		std::string imageFileNames[EI_MAX] =
+		{
+			"Resources/Images/Background_Start.png",
+			"Resources/Images/Background_Start_With_Menu.png",
+			"Resources/Images/Background_Game.png",
+			"Resources/Images/Background_End.png",
+			"Resources/Images/Button_Credit.png",
+			"Resources/Images/Button_Replay.png",
+			"Resources/Images/Button_Exit.png",
+			"Resources/Images/String_Total_Score.png",
+			"Resources/Images/String_Game_Clear.png",
+			"Resources/Images/Number_9.png",
+			"Resources/Images/Number_8.png",
+			"Resources/Images/Number_7.png",
+			"Resources/Images/Number_6.png",
+			"Resources/Images/Number_5.png",
+			"Resources/Images/Number_4.png",
+			"Resources/Images/Number_3.png",
+			"Resources/Images/Number_2.png",
+			"Resources/Images/Number_1.png",
+			"Resources/Images/Number_0.png",
+			"Resources/Images/Ball_Yellow.png",
+			"Resources/Images/Ball_Red.png",
+			"Resources/Images/Ball_Purple.png",
+			"Resources/Images/Ball_Green.png",
+			"Resources/Images/Ball_Blue.png",
+			"Resources/Images/Ball_Black.png",
+		};
+
+		ID3D11ShaderResourceView* textureSRV = nullptr;
+		
+		for (unsigned int i = 0; i < EI_MAX; ++i)
+		{
+			CreateTexture(imageFileNames[i], &textureSRV);
+			TextureSRVs.push_back(textureSRV);
+		}
+	}
+
+	CreateSampler();
+}
+
+void URenderer::SetTextureSRV(EImage eImage)
+{
+	DeviceContext->PSSetShaderResources(0, 1, &TextureSRVs[eImage]);
+}
+

@@ -102,10 +102,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>.\ThirdParty\fmod_lowlevel\inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>.\ThirdParty\fmod_lowlevel\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>fmod64_vc.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,6 +138,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="Square.cpp" />
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,8 +162,27 @@
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Square.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod.h" />
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod.hpp" />
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_codec.h" />
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_common.h" />
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_dsp.h" />
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_dsp_effects.h" />
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_errors.h" />
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_output.h" />
     <ClInclude Include="Triangle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThirdParty\fmod_lowlevel\lib\fmod.dll" />
+    <None Include="ThirdParty\fmod_lowlevel\lib\fmod64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="ThirdParty\fmod_lowlevel\lib\fmod64_vc.lib" />
+    <Library Include="ThirdParty\fmod_lowlevel\lib\fmod_vc.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

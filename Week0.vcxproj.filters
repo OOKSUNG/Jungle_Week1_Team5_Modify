@@ -19,6 +19,18 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{ea89737f-bf75-4557-b46a-c4a58704c3fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{7f50eec0-cd52-441a-b8f5-325155221a9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\fmod_lowlevel">
+      <UniqueIdentifier>{c28e1987-54be-4ea8-9624-cc351c02c8d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\fmod_lowlevel\inc">
+      <UniqueIdentifier>{5f0a2a4b-11b2-44ab-a76b-3fb061999f49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\fmod_lowlevel\lib">
+      <UniqueIdentifier>{44135fe1-2ebb-4501-8475-6a55e935471e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -51,13 +63,19 @@
     <ClCompile Include="Ball.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Renderable.cpp">
-      <Filter>헤더 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Circle.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Triangle.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderable.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Square.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,14 +124,63 @@
     <ClInclude Include="Math.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Renderable.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Circle.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Triangle.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Renderable.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Square.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod.h">
+      <Filter>ThirdParty\fmod_lowlevel\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod.hpp">
+      <Filter>ThirdParty\fmod_lowlevel\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_codec.h">
+      <Filter>ThirdParty\fmod_lowlevel\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_common.h">
+      <Filter>ThirdParty\fmod_lowlevel\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_dsp.h">
+      <Filter>ThirdParty\fmod_lowlevel\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_dsp_effects.h">
+      <Filter>ThirdParty\fmod_lowlevel\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_errors.h">
+      <Filter>ThirdParty\fmod_lowlevel\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\fmod_lowlevel\inc\fmod_output.h">
+      <Filter>ThirdParty\fmod_lowlevel\inc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThirdParty\fmod_lowlevel\lib\fmod.dll">
+      <Filter>ThirdParty\fmod_lowlevel\lib</Filter>
+    </None>
+    <None Include="ThirdParty\fmod_lowlevel\lib\fmod64.dll">
+      <Filter>ThirdParty\fmod_lowlevel\lib</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="ThirdParty\fmod_lowlevel\lib\fmod_vc.lib">
+      <Filter>ThirdParty\fmod_lowlevel\lib</Filter>
+    </Library>
+    <Library Include="ThirdParty\fmod_lowlevel\lib\fmod64_vc.lib">
+      <Filter>ThirdParty\fmod_lowlevel\lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>
