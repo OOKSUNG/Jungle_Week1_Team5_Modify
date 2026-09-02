@@ -31,10 +31,14 @@ public:
 	void Update();
 	void Shoot();
 	void AddBall();
-	void Collision(std::vector<UBall*> balls);
+	void Collision(std::vector<UBall*> balls, int lines);
 	void GenerateNewBall();
 	void WallCollision();
 	FColor GenerateBallColor();
+	FVector UVToPos(FVector& zeropos, int u, int v);
+	void IdxToUV(int& u, int& v, int idx);
+	int UVToIdx(int u, int v);
+	float GetDistance(FVector v1, FVector v2);
 
 private:
 	const float ballSpeed = 0.1f;

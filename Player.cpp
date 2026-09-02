@@ -51,7 +51,7 @@ void UPlayer::Update()
 
 	
 
-	//Collision(map->GetBalls());
+	//Collision(map->GetBalls(), map->GetLines());
 	WallCollision();
 
 	if (InputManager::GetInstance()->GetSTATUS()[LEFT])
@@ -92,9 +92,13 @@ FColor UPlayer::GenerateBallColor()
 	return color[rand() % 5];
 }
 
-void UPlayer::Collision(std::vector<UBall*> balls)
+std::vector<std::vector<int>> v11 = { { -1, -1 },{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 } };
+std::vector<std::vector<int>> v12 = { { -1, 0 },{ -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+
+void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 {
 	int lastU = 0, lastV = 0;
+	FVector zeroPos = balls[0]->CircleRenderer->getPos();
 
 	for (int i = 0; i < balls.size(); i++)
 	{
@@ -104,78 +108,100 @@ void UPlayer::Collision(std::vector<UBall*> balls)
 			continue;
 		}*/
 
-		
-
-		FVector pos = balls[i]->CircleRenderer->getPos();
-
-		int dx = pos.x - MyPos.x;
-		int dy = pos.y - MyPos.y;
-
-		float dir = sqrt(dx * dx + dy * dy);
+		FVector ballPos = balls[i]->CircleRenderer->getPos();
+		float dir = GetDistance(ballPos, MyPos);
 
 		if (dir <= radius)
 		{
 			bisCollision = true;
 
-			
+			float minDistance = 0.0f;
+			int minU = 0 , minV = 0;
 
 			// 공 위치 계산 하고 맵에 전달
 			int u, v;
-			int ansU, ansV;
 
 			IdxToUV(u, v, i);
 
-			// if (balls[i].bisBlink?) 비어있지 않으면
-			// {
-			//		// 공 파괴 다시 하나 생성
-			//		GenerateNewBall();
-			//		
-			//		// 위치 맵에 전달
-			//		//map.addBallandPop(ansU, ansV, ball->CircleRenderer.GetColor())
-			// }
+			// if 충돌 라인이 11일 경우 == u가 홀수
+			if (u % 2 != 0)
+			{
+				for (auto& i : v11)
+				{
+					int newU = u + i[0];
+					int newV = v + i[1];
 
-			// if 충돌 라인이 11이다.
+					float dis = GetDistance(MyPos, UVToPos(zeroPos, newU, newV));
 
-					// if      + +
-						
-					// else if - +
+					if (minDistance > dis && balls[UVToIdx(newU, newV)].Color == EmptyColor)
+					{
+						minDistance = dis;
+						minU = newU;
+						minV = newV;
+					}
+				}
 
-					// else if - -
+				// 공 인덱스 전달
+				//map->addball(minU, minV);
 
-					// else if + -
+			}
+
+			// else 충돌 라인이 12일 경우 == u가 짝수
+			else
+			{
+				for (auto& i : v12)
+				{
+					int newU = u + i[0];
+					int newV = v + i[1];
+
+					float dis = GetDistance(MyPos, UVToPos(zeroPos, newU, newV));
+
+					if (minDistance > dis && balls[UVToIdx(newU, newV)].Color == EmptyColor)
+					{
+						minDistance = dis;
+						minU = newU;
+						minV = newV;
+					}
+				}
+
+				// 공 인덱스 전달
+				//map->addball(minU, minV);
+			}
+
+			
 			
 
-			// if 충돌 라인이 12이다.
-					
-					// if      + +
-
-					// else if - +
-
-					// else if - -
-
-					// else if + -
-
-
-
-			lastU = u;
-			lastV = v;
-
 			
-
-
 		}
 
 
 	}
 }
-void IdxToUV(int& u, int& v, int idx)
+
+FVector UPlayer::UVToPos(FVector& zeropos, int u, int v)
+{
+	FVector anspos;
+	anspos.x = zeropos.x + 2 * radius * v;
+	anspos.y = zeropos.y + sqrt(3) * radius * u;
+	return anspos;
+}
+
+void UPlayer::IdxToUV(int& u, int& v, int idx)
 {
 	u = idx / 12; v = idx % 12;
 }
 
-int UVToIdx(int u, int v)
+int UPlayer::UVToIdx(int u, int v)
 {
 	return u * 12 + v;
+}
+
+float UPlayer::GetDistance(FVector v1, FVector v2)
+{
+	int dx = v1.x - v2.x;
+	int dy = v1.y - v2.y;
+
+	return sqrt(dx * dx + dy * dy);
 }
 
 void UPlayer::WallCollision()
