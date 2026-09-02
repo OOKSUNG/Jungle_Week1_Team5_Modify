@@ -44,10 +44,10 @@ private:
 	const float ballSpeed = 0.1f;
 	const FVector BallPosition = { 0.0f, -0.8f , 0.0f };
 	const float radius = 0.07f;
-	const float leftBorder = -1.0f;
-	const float rightBorder = 1.0f;
+	const float leftBorder = -0.9f;
+	const float rightBorder = 0.9f;
 	const float topBorder = -1.0f;
 	const float bottomBorder = 1.0f;
-	const std::vector<std::vector<int>> v11 = { { -1, -1 },{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 } };
-	const std::vector<std::vector<int>> v12 = { { -1, 0 },{ -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+	const std::vector<std::vector<int>> v11 = { { 1, 1 },{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 } };
+	const std::vector<std::vector<int>> v12 = { { -1, 0 },{ -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, 0 }, { -1, -1 } };
 };

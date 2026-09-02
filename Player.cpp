@@ -31,6 +31,8 @@ void UPlayer::GenerateNewBall()
 	pos = BallPosition;
 	vel = FVector(0.0f, 0.0f, 0.0f);
 
+
+
 	ball = new UBall;
 	ball->CircleRenderer->setColor(GenerateBallColor());
 	ball->CircleRenderer->setPos(BallPosition);
@@ -110,7 +112,7 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 		FVector ballPos = balls[i]->CircleRenderer->getPos();
 		float dir = GetDistance(ballPos, pos);
 
-		if (dir <= radius)
+		if (dir <= radius * 2)
 		{
 			if (balls[i]->Color == EmptyColor)
 			{
