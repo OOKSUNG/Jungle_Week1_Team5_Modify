@@ -10,7 +10,14 @@ UPlayer::UPlayer()
 {
 	GenerateNewBall();
 
-	// triangle = new Triangle(FVector{ 0.0f, -0.7f , 0.0f }, FColor{ 0.0f, 1.0f , 0.0f }, 0.1f);
+	for (int i = 0; i < 5; i++)
+	{
+
+		directer[i].CircleRenderer->setColor(getColorFromEnum(Red));
+		directer[i].CircleRenderer->setPos(MyPos);
+		directer[i].CircleRenderer->setRadius(0.01);
+
+	}
 }
 
 UPlayer::~UPlayer()
@@ -66,15 +73,31 @@ void UPlayer::Update()
 	if (InputManager::GetInstance()->GetSTATUS()[LEFT])
 	{
 		OutputDebugStringA("!!! My Position is getting Bigger !!!");
-		MyPos.x -= 0.1f;
+		theta += ANGLESPEED;
 	}
 	if (InputManager::GetInstance()->GetSTATUS()[RIGHT])
 	{
 		OutputDebugStringA("!!! My Position is getting Smaller !!!");
-		MyPos.x += 0.1f;
+		theta -= ANGLESPEED;
 	}
-	if (MyPos.x >= 0.5f) MyPos.x = 0.5f;
-	if (MyPos.x <= -0.5f) MyPos.x = -0.5f;
+
+	if (theta > MAXANGLE) theta = MAXANGLE;
+	if (theta < MINANGLE) theta = MINANGLE;
+
+	radian = theta * PI / 180.0f;
+
+	MyPos.x = ANGLERADIUS[0] * cos(radian);
+	MyPos.y = ANGLERADIUS[0] * sin(radian) + BallPosition.y;
+
+	for (int i = 0; i < 5; i++)
+	{
+		float x = ANGLERADIUS[i] * cos(radian);
+		float y = ANGLERADIUS[i] * sin(radian) + BallPosition.y;
+
+		directer[i].CircleRenderer->setPos(FVector{x,y,0});
+	}
+	
+
 }
 
 void UPlayer::Shoot()
@@ -140,8 +163,13 @@ void UPlayer::Collision(UBall* balls[GameRow][GameCol], int lines)
 						if (newR <= 0) newR = 0;
 						if (newC <= 0) newC = 0;
 
+						if (newR == r && newC >= 11) newC = 10;
+
+
 						// balls[i]->CircleRenderer->getPos();
 						float dis = GetDistance(pos, balls[newR][newC]->CircleRenderer->getPos());
+
+						if (!balls[newR][newC]) continue;
 
 						if (minDistance > dis && balls[newR][newC]->Color == EmptyColor)
 						{
@@ -174,10 +202,15 @@ void UPlayer::Collision(UBall* balls[GameRow][GameCol], int lines)
 						if (newR <= 0) newR = 0;
 						if (newC <= 0) newC = 0;
 
+						if (newR == r - 1 && newC >= 11) newC = 10;
+						if (newR == r + 1 && newC >= 11) newC = 10;
+
 						// balls[i]->CircleRenderer->getPos();
 						float dis = GetDistance(pos, balls[newR][newC]->CircleRenderer->getPos());
 
-						if (minDistance > dis && balls[newR][newC]->Color == EmptyColor)
+						if (!balls[newR][newC]) continue;
+
+						if (minDistance > dis && balls[newR][newC]->Color == EmptyColor )
 						{
 							minDistance = dis;
 							minR = newR;
