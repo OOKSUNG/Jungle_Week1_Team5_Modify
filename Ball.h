@@ -54,4 +54,5 @@ public:
 	
 	Circle* CircleRenderer;
 	BallColors Color;
+	int BounceCnt = 0;
 };

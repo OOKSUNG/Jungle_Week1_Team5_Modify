@@ -102,6 +102,16 @@ void UMap::addBallandPop(int ix, int iy, BallColors color)  // Player가 위치 
 		while (!breakable.empty())
 		{
 			BallData currentBall = breakable.front(); 
+
+			UBall* PopBall = new UBall;
+			PopBall->CircleRenderer->setColor(Balls[currentBall.y][currentBall.x]->CircleRenderer->getColor());
+			PopBall->CircleRenderer->setPos(Balls[currentBall.y][currentBall.x]->CircleRenderer->getPos());
+			PopBall->CircleRenderer->setRadius(0.07f);
+			float x = (float)rand() / RAND_MAX * 0.01f;
+			if (rand() % 2) x *= -1;
+			PopBall->SetVelocity({ x,0.01f,0.0f });
+			DropBalls.push_back(PopBall);
+
 			Balls[currentBall.y][currentBall.x]->CircleRenderer->setColor(getColorFromEnum(EmptyColor)); // Pop
 			Balls[currentBall.y][currentBall.x]->Color = EmptyColor;
 			breakable.pop();
@@ -335,15 +345,25 @@ void UMap::DropBallUpdate(float dt)
 	{
 		for (int i = 0; i < DropBalls.size(); i++)
 		{
+			int MaxCount = 1;
 			FVector DropBallPos = DropBalls[i]->CircleRenderer->getPos();
 			DropBalls[i]->Velocity.y = DropBalls[i]->Velocity.y - 0.1f * dt;
 			DropBallPos.y += DropBalls[i]->Velocity.y;
 			DropBallPos.x += DropBalls[i]->Velocity.x;
 			DropBalls[i]->CircleRenderer->setPos(DropBallPos);
-			if (DropBalls[i]->CircleRenderer->getPos().y < -1.1f)
+			if (DropBalls[i]->CircleRenderer->getPos().y < -1.05f)
 			{
-				delete DropBalls[i];
-				DropBalls.erase(DropBalls.begin() + i);
+				if (DropBalls[i]->BounceCnt >= MaxCount)
+				{
+					delete DropBalls[i];
+					DropBalls.erase(DropBalls.begin() + i);
+					continue;
+				}
+				else
+				{
+					DropBalls[i]->Velocity.y = DropBalls[i]->Velocity.y * -0.4f;
+					DropBalls[i]->BounceCnt += 1;
+				}
 			}
 		}
 	}
