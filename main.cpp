@@ -244,7 +244,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	UMap* testMap = new UMap();
 	testMap->randMapGenerator();
 
-	testMap->addBallandPop(3, 3, Green);
+	/*testMap->addBallandPop(3, 3, Green);
 	testMap->addBallandPop(4, 3, Green);
 	testMap->addBallandPop(4, 4, Blue);
 	testMap->addBallandPop(4, 5, Blue);
@@ -255,7 +255,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	testMap->addBallandPop(7, 4, Green);
 	testMap->addBallandPop(7, 5, Red);
 	testMap->addBallandPop(8, 5, Red);
-	testMap->addBallandPop(7, 6, Purple);
+	testMap->addBallandPop(7, 6, Purple);*/
 
 	testMap->renderMap();
 
