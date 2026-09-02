@@ -37,7 +37,7 @@ public:
 	int getMaxRow();
 	int getLines(); // return Lines
 	bool isGameOver(); // return bGameOver
-	vector<UBall*> GetBalls(); // return Balls in vector
+	UBall* (*GetBalls())[GameCol];
 
 	void DropBallUpdate(float dt);
 };
