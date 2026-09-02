@@ -1,6 +1,8 @@
 #pragma once
 #include "Primitive.h"
+#include "Circle.h"
 #include "Math.h"
+#include "BallColor.h"
 #define BALLSPEED 0.01f
 
 class UBall : public UPrimitive
@@ -18,11 +20,15 @@ public:
 
 		Radius = 0.01f + ((float)rand() / RAND_MAX) * 0.1f;
 		Mass = Radius * 10.0f;
+
+		
+		CircleRenderer = new Circle();
 	}
 
 	~UBall() override
 	{
 		TotalNumBalls -= 1;
+		delete CircleRenderer;
 	}
 
 	float GetRadius() override;
@@ -45,4 +51,8 @@ public:
 	float Mass;
 	static int TotalNumBalls;
 	static bool bGravity;
+
+	
+	Circle* CircleRenderer;
+	BallColors Color;
 };

@@ -1,5 +1,6 @@
 #include "Renderable.h"
 
+
 std::vector<Renderable*> Renderable::renderables;
 
 Renderable::Renderable() {
@@ -24,6 +25,7 @@ Renderable::Renderable(FVector newPos,
 	color.R = newColor.R;
 	color.G = newColor.G;
 	color.B = newColor.B;
+	color.A = newColor.A;
 	radius = newRadius;
 	int slot = getFirstEmpty();
 	if (slot == -1) {
@@ -67,6 +69,7 @@ void Renderable::setColor(FColor newColor) {
 	color.R = newColor.R;
 	color.G = newColor.G;
 	color.B = newColor.B;
+	color.A = newColor.A;
 }
 
 void Renderable::setRadius(float newRadius) {
