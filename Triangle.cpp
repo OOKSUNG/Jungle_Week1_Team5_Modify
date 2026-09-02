@@ -2,7 +2,8 @@
 
 Triangle::Triangle(FVector newPos,
 	FColor newColor,
-	float newRadius):Renderable(newPos, newColor, newRadius) {
+	float newRadius,
+	EImage image):Renderable(newPos, newColor, newRadius, image) {
 
 }
 

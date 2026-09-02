@@ -6,6 +6,7 @@ class Triangle : Renderable {
 public:
 	Triangle(FVector newPos,
 		FColor newColor,
-		float newRadius);
+		float newRadius,
+		EImage image);
 	void Render(URenderer& renderer) override;
 };

@@ -28,6 +28,17 @@ struct FConstants
 
 enum EImage
 {
+	EI_Number_0,
+	EI_Number_1,
+	EI_Number_2,
+	EI_Number_3,
+	EI_Number_4,
+	EI_Number_5,
+	EI_Number_6,
+	EI_Number_7,
+	EI_Number_8,
+	EI_Number_9,
+
 	EI_BackgroundStart,
 	EI_BackgroundStart_With_Menu,
 	EI_BackgroundGame,
@@ -39,17 +50,6 @@ enum EImage
 	
 	EI_StringTotalScore,
 	EI_StringGameClear,
-
-	EI_Number_9,
-	EI_Number_8,
-	EI_Number_7,
-	EI_Number_6,
-	EI_Number_5,
-	EI_Number_4,
-	EI_Number_3,
-	EI_Number_2,
-	EI_Number_1,
-	EI_Number_0,
 	
 	EI_BallYellow,
 	EI_BallRed,

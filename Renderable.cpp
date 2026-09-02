@@ -16,7 +16,9 @@ Renderable::Renderable() {
 
 Renderable::Renderable(FVector newPos,
 	FColor newColor,
-	float newRadius)
+	float newRadius,
+	EImage image)
+	: eImage(image)
 {
 	pos.x = newPos.x;
 	pos.y = newPos.y;
@@ -25,6 +27,7 @@ Renderable::Renderable(FVector newPos,
 	color.G = newColor.G;
 	color.B = newColor.B;
 	radius = newRadius;
+
 	int slot = getFirstEmpty();
 	if (slot == -1) {
 		slotNo = renderables.size();

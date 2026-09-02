@@ -15,6 +15,10 @@
 #include "Square.h"
 #include "SoundManager.h"
 
+#include "InputManager.h"
+#include "Scene.h"
+#include "StartMenu.h"
+
 enum ETypePrimitive
 {
 	EPT_Triangle,
@@ -36,10 +40,57 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return true;
 	}
 
-	switch (message) 
+	switch (message)
 	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_SPACE:
+			InputManager::GetInstance()->OnKeyDown(SPACE);
+			break;
+		case VK_LEFT:
+			InputManager::GetInstance()->OnKeyDown(LEFT);
+			break;
+		case VK_RIGHT:
+			InputManager::GetInstance()->OnKeyDown(RIGHT);
+			break;
+		case VK_UP:
+			InputManager::GetInstance()->OnKeyDown(UP);
+			break;
+		case VK_DOWN:
+			InputManager::GetInstance()->OnKeyDown(DOWN);
+			break;
+		case VK_RETURN:
+			InputManager::GetInstance()->OnKeyDown(ENTER);
+			break;
+		}
+		return 0;
+	case WM_KEYUP:
+		switch (wParam)
+		{
+		case VK_SPACE:
+			InputManager::GetInstance()->OnKeyUP(SPACE);
+			break;
+		case VK_LEFT:
+			InputManager::GetInstance()->OnKeyUP(LEFT);
+			break;
+		case VK_RIGHT:
+			InputManager::GetInstance()->OnKeyUP(RIGHT);
+			break;
+		case VK_UP:
+			InputManager::GetInstance()->OnKeyUP(UP);
+			break;
+		case VK_DOWN:
+			InputManager::GetInstance()->OnKeyUP(DOWN);
+			break;
+		case VK_RETURN:
+			InputManager::GetInstance()->OnKeyUP(ENTER);
+			break;
+		}
+		return 0;
 	case WM_DESTROY:
 		// Signal that the app should quit
+		OutputDebugStringA("!!! WM_DESTROY !!!\n");
 		PostQuitMessage(0);
 		break;
 	default:
@@ -48,7 +99,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return 0;
 }
-
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine, int nShowCmd)
 {
@@ -84,12 +134,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	ImGui_ImplWin32_Init((void*)hWnd);
 	ImGui_ImplDX11_Init(renderer.Device, renderer.DeviceContext);
 
-	
 	ETypePrimitive typePrimitive = EPT_Cube;
 
 	// 도형의 움직임 정도를 담을 offset 변수
 	//const int targetFPS = 30;
-	const int targetFPS = 2;
+	const int targetFPS = 60;
 	const double targetFrameTime = 1000.0 / targetFPS;
 
 	LARGE_INTEGER frequency;
@@ -106,23 +155,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	{
 		renderer.InitializeResources();
 
-		SoundManager::CreateInstance();
+		//SoundManager::CreateInstance();
+		InputManager::GetInstance();
 	}
 
 	// Start scene
 	{
-		Square* startBackGround = new Square(FVector{ 0.0f, 0.0f, 0.0f }, FColor{ 0.5f, 0.3f, 0.5f }, 0.2f);
+		Square* startBackGround = new Square(FVector{ 0.0f, 0.0f, 0.0f }, FColor{ 0.5f, 0.3f, 0.5f }, 1.f, EImage::EI_BackgroundStart);
 
-		// delete startBackGround;
-
-		renderer.DeviceContext->PSSetShaderResources(0, 1, &renderer.TextureSRVs[EI_Number_0]);
-		SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_BGM);
+		//delete startBackGround;
+		//SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_BGM);
 	}
 
 	bool bWithMenu = false;
 
+	ActiveScene* activeScene = ActiveScene::getInstance();
+	activeScene->setInitialScene(new StartMenu());
+
 	// Main Loop 
-	while (bIsExit == false)
+	while (!activeScene->programEnd)
 	{
 		DeltaTime = (float)(elapsedTime / 1000.0);
 		QueryPerformanceCounter(&startTime);
@@ -142,12 +193,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 
 		// System update
 		{
-			SoundManager::GetInstance()->Update();
+			
+			//SoundManager::GetInstance()->Update();
+
+			/*
+			if (InputManager::GetInstance()->GetState(EKeyStatus::SPACE))
+			{
+				OutputDebugStringA("Space pressed");
+			}
+			*/
 		}
 
 		// Update
 		{
-
+			activeScene->update();
 		}
 
 		// Render
@@ -156,20 +215,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 			renderer.PrepareShader();
 
 			// Todo: Test start scene
+			/*
 			{
 				if (bWithMenu)
 				{
 					renderer.SetTextureSRV(EImage::EI_Number_9);
 					bWithMenu = false;
 				}
-				/*
 				else
 				{
 					renderer.SetTextureSRV(EImage::EI_BallRed);
 					bWithMenu = true;
 				}
-				*/
 			}
+			*/
 
 			Renderable::RenderAll(renderer);
 		}
@@ -212,6 +271,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	renderer.ReleaseConstantBuffer();
 	renderer.ReleaseShader();
 	renderer.Release();
+
+	{
+		//SoundManager::DeleteInstance();
+		ActiveScene::DestroyInstance();
+		InputManager::DestroyInstance();
+	}
 
 	//renderer.ReleaseVertexBuffer(vertexBufferTriangle);
 	//renderer.ReleaseVertexBuffer(vertexBufferSquare);

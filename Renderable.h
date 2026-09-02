@@ -13,6 +13,7 @@ protected:
 	FVector pos;
 	FColor color;
 	float radius;
+	EImage eImage;
 
 public:
 	Renderable();
@@ -20,7 +21,8 @@ public:
 
 	Renderable(FVector newPos,
 		FColor newColor,
-		float newRadius);
+		float newRadius,
+		EImage eImage);
 
 	static void RenderAll(URenderer& renderer);
 

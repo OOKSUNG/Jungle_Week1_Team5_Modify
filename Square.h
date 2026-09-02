@@ -3,11 +3,12 @@
 #include "Renderer.h"
 #include "Math.h"
 
-class Square : Renderable {
+class Square : public Renderable {
 public:
 	Square();
 	Square(FVector newPos,
 		FColor newColor,
-		float newRadius);
+		float newRadius,
+		EImage image);
 	void Render(URenderer& renderer) override;
 };

@@ -139,7 +139,7 @@ void URenderer::Release()
 
 	// Todo: fix
 	{
-		ReleaseVertexBuffer(VertexBufferTriangle);
+ 		ReleaseVertexBuffer(VertexBufferTriangle);
 		ReleaseVertexBuffer(VertexBufferSquare);
 		//ReleaseVertexBuffer(VertexBufferSphere);
 	
@@ -400,6 +400,17 @@ void URenderer::InitializeResources()
 	{
 		std::string imageFileNames[EI_MAX] =
 		{
+			"Resources/Images/Number_0.png",
+			"Resources/Images/Number_1.png",
+			"Resources/Images/Number_2.png",
+			"Resources/Images/Number_3.png",
+			"Resources/Images/Number_4.png",
+			"Resources/Images/Number_5.png",
+			"Resources/Images/Number_6.png",
+			"Resources/Images/Number_7.png",
+			"Resources/Images/Number_8.png",
+			"Resources/Images/Number_9.png",
+			
 			"Resources/Images/Background_Start.png",
 			"Resources/Images/Background_Start_With_Menu.png",
 			"Resources/Images/Background_Game.png",
@@ -409,16 +420,7 @@ void URenderer::InitializeResources()
 			"Resources/Images/Button_Exit.png",
 			"Resources/Images/String_Total_Score.png",
 			"Resources/Images/String_Game_Clear.png",
-			"Resources/Images/Number_9.png",
-			"Resources/Images/Number_8.png",
-			"Resources/Images/Number_7.png",
-			"Resources/Images/Number_6.png",
-			"Resources/Images/Number_5.png",
-			"Resources/Images/Number_4.png",
-			"Resources/Images/Number_3.png",
-			"Resources/Images/Number_2.png",
-			"Resources/Images/Number_1.png",
-			"Resources/Images/Number_0.png",
+
 			"Resources/Images/Ball_Yellow.png",
 			"Resources/Images/Ball_Red.png",
 			"Resources/Images/Ball_Purple.png",
