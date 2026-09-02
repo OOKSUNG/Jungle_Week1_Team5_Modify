@@ -2,6 +2,7 @@
 #include "Primitive.h"
 #include "Circle.h"
 #include "Math.h"
+#include "BallColor.h"
 #define BALLSPEED 0.01f
 
 class UBall : public UPrimitive
@@ -49,5 +50,8 @@ public:
 	float Mass;
 	static int TotalNumBalls;
 	static bool bGravity;
+
+	
 	Circle* CircleRenderer;
+	BallColors Color;
 };

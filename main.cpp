@@ -15,6 +15,7 @@
 #include "Triangle.h"
 #include "InputManager.h"
 #include "Player.h"
+#include "Map.h"
 
 enum ETypePrimitive
 {
@@ -203,6 +204,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	float DeltaTime = (float)(elapsedTime / 1000.0);
 	bool bIsExit = false;
 
+	/*
 	Circle* testCircle;
 	testCircle = new Circle();
 	testCircle->setPos(FVector{ 0.0f, 0.1f, 0.2f });
@@ -236,6 +238,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	testCircle3->setRadius(0.1f);
 	testCircle3->setColor(FColor{ 0.2f, 0.3f, 0.5f });
 	testTris = new Triangle(FVector{ 0.0f, 0.7f, 0.2f }, FColor{ 0.5f, 0.3f, 0.5f }, 0.1f);
+	*/
+
+
+	UMap* testMap = new UMap();
+	testMap->randMapGenerator();
+
+	testMap->addBallandPop(3, 3, Green);
+	testMap->addBallandPop(4, 3, Green);
+	testMap->addBallandPop(4, 4, Blue);
+	testMap->addBallandPop(4, 5, Blue);
+	testMap->addBallandPop(5, 5, Red);
+	testMap->addBallandPop(5, 6, Red);
+	testMap->addBallandPop(5, 4, Purple);
+	testMap->addBallandPop(6, 3, Green);
+	testMap->addBallandPop(7, 4, Green);
+	testMap->addBallandPop(7, 5, Red);
+	testMap->addBallandPop(8, 5, Red);
+	testMap->addBallandPop(7, 6, Purple);
+
+	testMap->renderMap();
 
 	UPlayer player;
 
@@ -256,6 +278,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 
 			// 메시지를 적절한 위도우 프리시저에 전달, 메시지가 위에서 등록한 WndProc 으로 전달됨
 			DispatchMessage(&msg);
+
+			if (msg.message == WM_KEYDOWN)
+			{
+				
+				//testMap->addBallandPop(5, 3, Green);
+				//testMap->addBallandPop(7, 3, Green);
+
+				
+				testMap->addLine();
+				
+				testMap->renderMap();
+
+				break;
+			}
 
 			if (msg.message == WM_QUIT)
 			{
@@ -424,7 +460,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 			}
 		}
 		*/
-
+		/*
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
@@ -441,6 +477,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+		*/
 
 		// 현재 화면에 보여지는 버퍼와 그리기 작업을 위한 버퍼를 서로 교환
 		renderer.SwapBuffer();
@@ -456,11 +493,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 		} while (elapsedTime < targetFrameTime);
 		////////////////////////////////////////////////////
 	}
-
+	
 	// 소멸하는 코드를 여기에 추가
+	
+	/*
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+	*/
 
 	renderer.ReleaseVertexBuffer(vertexBufferTriangle);
 	renderer.ReleaseVertexBuffer(vertexBufferSquare);
