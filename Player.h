@@ -20,6 +20,8 @@ public:
 
 private:
 	UBall* ball;		// FVector Pos
+	//UBall directer;
+	UBall* Balls[GameRow][GameCol] = {};
 	Triangle* triangle;  // FVector Pos
 	bool bisCollision = false;
 	FVector vel = { 0.0, 0.0f, 0.0f };
@@ -32,7 +34,7 @@ public:
 	void SetMap(UMap* newmap);
 	void Update();
 	void Shoot();
-	void Collision(std::vector<UBall*> balls, int lines);
+	void Collision(UBall* balls[GameRow][GameCol], int lines);
 	void GenerateNewBall();
 	void WallCollision();
 	int GenerateBallColor();
@@ -45,10 +47,11 @@ private:
 	const float ballSpeed = 0.07f;
 	const FVector BallPosition = { 0.0f, -0.8f , 0.0f };
 	const float radius = 0.07f;
-	const float leftBorder = -1.0f;
-	const float rightBorder = 1.0f;
+	const float leftBorder = -0.8f;
+	const float rightBorder = 0.8f;
 	const float topBorder = -1.0f;
 	const float bottomBorder = 1.0f;
-	const std::vector<std::vector<int>> v11 = { { -1, -1 },{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 } };
-	const std::vector<std::vector<int>> v12 = { { -1, 0 },{ -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
+	const float inf = 1000.0f;
+	const std::vector<std::vector<int>> v11 = { { -1, 0 },{ -1, +1 }, { 0, -1 }, { 0, +1 }, { +1, 0 }, { +1, +1 } };
+	const std::vector<std::vector<int>> v12 = { { -1, -1 },{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 } };
 };

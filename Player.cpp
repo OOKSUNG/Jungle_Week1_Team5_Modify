@@ -102,109 +102,99 @@ int UPlayer::GenerateBallColor()
 	return rand() % 5;
 }
 
-void UPlayer::Collision(std::vector<UBall*> balls, int lines)
+void UPlayer::Collision(UBall* balls[GameRow][GameCol], int lines)
 {
-	int lastU = 0, lastV = 0;
-	FVector zeroPos = balls[0]->CircleRenderer->getPos();
-
-	for (int i = 0; i < balls.size(); i++)
-	{
-		if (balls[i]->Color == EmptyColor)
-		{
-			continue;
-		}
-
-		FVector ballPos = balls[i]->CircleRenderer->getPos();
-		float dir = GetDistance(ballPos, pos);
-
-		if (dir <= 2 * radius)
-		{
-			if (balls[i]->Color == EmptyColor)
+	for (int i = 0; i < GameRow; i++) {
+		for (int j = 0; j < GameCol; j++) {
+			// nullptr 이면, Empty 컬러면 
+			if(balls[i][j] == nullptr || balls[i][j]->Color == EmptyColor)
 			{
 				continue;
 			}
 
+			FVector ballPos = balls[i][j]->CircleRenderer->getPos();
+			float dis = GetDistance(ballPos, pos);
 
-			bisCollision = true;
-			OutputDebugStringA("!!! Collision Detection !!!\n");
-
-			float minDistance = 1000.0f;
-			int minU = 0;
-			int minV = 0;
-
-			// 공 위치 계산 하고 맵에 전달
-			int u, v;
-
-			IdxToUV(u, v, i);
-
-			// if 충돌 라인이 11일 경우 == u가 홀수
-			if (u % 2 != 0)
+			if (dis <= 2 * radius)
 			{
-				for (auto& i : v11)
+				OutputDebugStringA("!!! Collision Detection !!!\n");
+
+				float minDistance = inf;
+				int minR= 0;
+				int minC = 0;
+
+				int r = i, c = j;
+
+				// if 충돌 라인 r이 11일 경우 == r가 홀수, line이 짝수 or r이 짝수 line이 홀수
+				if ((r % 2 != 0 && lines % 2 == 0) || (r % 2 == 0 && lines % 2 != 0))
 				{
-					int newU = u + i[0];
-					int newV = v + i[1];
-
-					if (newU >= 13) newU = 13;
-					if (newV >= 11) newU = 11;
-					if (newU <= 0) newU = 0;
-					if (newV <= 0) newU = 0;
-
-					// balls[i]->CircleRenderer->getPos();
-					float dis = GetDistance(pos, balls[UVToIdx(newU, newV)]->CircleRenderer->getPos());
-
-					if (minDistance > dis && balls[UVToIdx(newU, newV)]->Color == EmptyColor)
+					for (auto& k : v11)
 					{
-						minDistance = dis;
-						minU = newU;
-						minV = newV;
+						int newR = r + k[0];
+						int newC = c + k[1];
+
+						if (newR >= 12) newR = 12;
+						if (newC >= 11) newC = 11;
+						if (newR <= 0) newR = 0;
+						if (newC <= 0) newC = 0;
+
+						// balls[i]->CircleRenderer->getPos();
+						float dis = GetDistance(pos, balls[newR][newC]->CircleRenderer->getPos());
+
+						if (minDistance > dis && balls[newR][newC]->Color == EmptyColor)
+						{
+							minDistance = dis;
+							minR = newR;
+							minC = newC;
+						}
+					}
+
+					// 공 인덱스 전달
+					if (minDistance < 10.0f)
+					{
+						map->addBallandPop(minC, minR, ball->Color);
+						GenerateNewBall();
+						return;
 					}
 				}
 
-				// 공 인덱스 전달
-				if (minDistance < 10.0f)
+
+				// else 충돌 라인이 r이 12인 경우 r이 짝수, line이 짝수 or r이 홀수 line이 홀수
+				else if ((r % 2 == 0 && lines % 2 == 0) || (r % 2 != 0 && lines % 2 != 0))
 				{
-					map->addBallandPop(minU, minV, ball->Color);
-					GenerateNewBall();
-					return;
-				}
-
-
-			}
-
-			// else 충돌 라인이 12일 경우 == u가 짝수
-			else
-			{
-				for (auto& i : v12)
-				{
-					int newU = u + i[0];
-					int newV = v + i[1];
-
-					if (newU >= 13) newU = 13;
-					if (newV >= 11) newU = 11;
-					if (newU <= 0) newU = 0;
-					if (newV <= 0) newU = 0;
-
-					float dis = GetDistance(pos, balls[UVToIdx(newU, newV)]->CircleRenderer->getPos());
-
-					if (minDistance > dis && balls[UVToIdx(newU, newV)]->Color == EmptyColor)
+					for (auto& k : v12)
 					{
-						minDistance = dis;
-						minU = newU;
-						minV = newV;
+						int newR = r + k[0];
+						int newC = c + k[1];
+
+						if (newR >= 12) newR = 12;
+						if (newC >= 11) newC = 11;
+						if (newR <= 0) newR = 0;
+						if (newC <= 0) newC = 0;
+
+						// balls[i]->CircleRenderer->getPos();
+						float dis = GetDistance(pos, balls[newR][newC]->CircleRenderer->getPos());
+
+						if (minDistance > dis && balls[newR][newC]->Color == EmptyColor)
+						{
+							minDistance = dis;
+							minR = newR;
+							minC = newC;
+						}
+					}
+
+					// 공 인덱스 전달
+					if (minDistance < 10.0f)
+					{
+						map->addBallandPop(minC, minR, ball->Color);
+						GenerateNewBall();
+						return;
 					}
 				}
 
-				// 공 인덱스 전달
-				if (minDistance < 10.0f)
-				{
-					map->addBallandPop(minV, minU, ball->Color);
-					GenerateNewBall();
-					return;
-				}
 			}
+			bcanShoot = true;
 		}
-		bcanShoot = true;
 	}
 }
 
@@ -218,22 +208,22 @@ FVector UPlayer::UVToPos(FVector& zeropos, int u, int v)
 
 void UPlayer::IdxToUV(int& u, int& v, int idx)
 {
-	u = idx / 12; v = idx % 12;
+	// u = idx / 12; v = idx % 12;
 
-	//u = idx / 23;
-	//v = idx % 23;
+	u = idx / 23;
+	v = idx % 23;
 
 	//// lines 홀수 이냐 짝수이냐 에 따라서 12 또는 11로 변경한다.
 
-	//if (v > 11) 
-	//{
-	//	u++;
-	//	v = u + v - 12 ;
-	//}
-	//else if (v <= 11)
-	//{
-	//	v += u;
-	//}
+	if (v > 12) 
+	{
+		u++;
+		v = u + v - 12 ;
+	}
+	else if (v <= 12)
+	{
+		v += u;
+	}
 
 }
 

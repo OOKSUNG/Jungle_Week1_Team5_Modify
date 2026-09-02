@@ -240,6 +240,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	testTris = new Triangle(FVector{ 0.0f, 0.7f, 0.2f }, FColor{ 0.5f, 0.3f, 0.5f }, 0.1f);
 	*/
 
+	UPlayer player;
+
 
 	UMap* testMap = new UMap();
 	testMap->randMapGenerator();
@@ -259,7 +261,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 
 	testMap->renderMap();
 
-	UPlayer player;
+	
 	player.SetMap(testMap);
 
 	// Main Loop (Quit Message가 들어오기 전까지 아래 Loop를 무한히 실행하게 됨)

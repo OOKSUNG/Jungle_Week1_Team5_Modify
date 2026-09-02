@@ -48,7 +48,7 @@ void UMap::addBallandPop(int ix, int iy, BallColors color)  // Player가 위치 
 				ny = currentBall.y + dy11[k];
 			}
 
-			if (nx >= 0 && nx < GameCol && ny >= 0 && ny < GameRow)
+			if (nx >= 0 && nx < GameCol && ny >= 0 && ny < GameRow - 1)
 			{
 				if (Balls[ny][nx]->Color == EmptyColor)
 				{
@@ -194,7 +194,7 @@ void UMap::randMapGenerator() // 현재 3*GameCol 사이즈의 랜덤 맵만 생
 	float BasicRadius = 0.07f;
 	FColor BasicColor = { 1.0f, 1.0f, 0.0f, 1.0f };
 
-	for (int i = 0; i < GameRow-1; i++)
+	for (int i = 0; i < GameRow - 1; i++)
 	{
 		for (int j = 0; j < GameCol; j++)
 		{
@@ -341,18 +341,7 @@ bool UMap::isGameOver() //필요 없어짐
 {
 	return bGameOver;
 }
-vector<UBall*> UMap::GetBalls()
+UBall* (*UMap::GetBalls())[GameCol]
 {
-	vector<UBall*> ballVector;
-	for (int i = 0; i < GameRow; i++) //플레이어 라인 제외
-	{
-		for (int j = 0; j < GameCol; j++)
-		{
-			if (Balls[i][j] != nullptr)
-			{
-				ballVector.push_back(Balls[i][j]);
-			}
-		}
-	}
-	return ballVector;
+	return Balls;
 }
