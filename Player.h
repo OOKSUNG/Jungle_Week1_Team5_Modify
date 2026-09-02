@@ -26,6 +26,7 @@ private:
 	FVector MyPos = { 0.0f, -0.5f , 0.0f };
 	FVector pos = { 0.0f, -0.8f, 0.0f };
 	UMap* map;
+	bool bcanShoot = true;
 
 public:
 	void SetMap(UMap* newmap);
@@ -34,14 +35,14 @@ public:
 	void Collision(std::vector<UBall*> balls, int lines);
 	void GenerateNewBall();
 	void WallCollision();
-	FColor GenerateBallColor();
+	int GenerateBallColor();
 	FVector UVToPos(FVector& zeropos, int u, int v);
 	void IdxToUV(int& u, int& v, int idx);
 	int UVToIdx(int u, int v);
 	float GetDistance(FVector v1, FVector v2);
 
 private:
-	const float ballSpeed = 0.1f;
+	const float ballSpeed = 0.07f;
 	const FVector BallPosition = { 0.0f, -0.8f , 0.0f };
 	const float radius = 0.07f;
 	const float leftBorder = -0.9f;

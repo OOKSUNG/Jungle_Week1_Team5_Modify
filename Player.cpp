@@ -34,16 +34,20 @@ void UPlayer::GenerateNewBall()
 
 
 	ball = new UBall;
-	ball->CircleRenderer->setColor(GenerateBallColor());
+	BallColors newColor =static_cast<BallColors>(GenerateBallColor());
+	ball->Color = newColor;
+	ball->CircleRenderer->setColor(getColorFromEnum(newColor));
+	
 	ball->CircleRenderer->setPos(BallPosition);
 	ball->CircleRenderer->setRadius(radius);
 }
 
 void UPlayer::Update()
 {
-	if (InputManager::GetInstance()->GetSTATUS()[SPACE])
+	if (InputManager::GetInstance()->GetSTATUS()[SPACE] && bcanShoot)
 	{
 		Shoot();
+		bcanShoot = false;
 	}
 
 	// 정해지는 것이 아니라 더해지게
@@ -69,7 +73,8 @@ void UPlayer::Update()
 		OutputDebugStringA("!!! My Position is getting Smaller !!!");
 		MyPos.x += 0.1f;
 	}
-
+	if (MyPos.x >= 0.5f) MyPos.x = 0.5f;
+	if (MyPos.x <= -0.5f) MyPos.x = -0.5f;
 }
 
 void UPlayer::Shoot()
@@ -91,10 +96,12 @@ void UPlayer::Shoot()
 	vel = vector;
 }
 
-FColor UPlayer::GenerateBallColor()
+int UPlayer::GenerateBallColor()
 {
 	srand(static_cast<unsigned int>(time(NULL)));
-	return color[rand() % 5];
+	//return getColorFromEnum(static_cast<BallColors>(rand() % 5));
+
+	return rand() % 5;
 }
 
 void UPlayer::Collision(std::vector<UBall*> balls, int lines)
@@ -112,7 +119,7 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 		FVector ballPos = balls[i]->CircleRenderer->getPos();
 		float dir = GetDistance(ballPos, pos);
 
-		if (dir <= radius * 2)
+		if (dir <= 2 * radius)
 		{
 			if (balls[i]->Color == EmptyColor)
 			{
@@ -140,6 +147,11 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 					int newU = u + i[0];
 					int newV = v + i[1];
 
+					if (newU >= 13) newU = 13;
+					if (newV >= 11) newU = 11;
+					if (newU <= 0) newU = 0;
+					if (newV <= 0) newU = 0;
+
 					// balls[i]->CircleRenderer->getPos();
 					float dis = GetDistance(pos, balls[UVToIdx(newU, newV)]->CircleRenderer->getPos());
 
@@ -154,11 +166,11 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 				// 공 인덱스 전달
 				if (minDistance < 10.0f)
 				{
-					map->addBallandPop(minU, minV, balls[UVToIdx(minU, minV)]->Color);
+					map->addBallandPop(minU, minV, ball->Color);
 					GenerateNewBall();
 					return;
 				}
-				
+
 
 			}
 
@@ -169,6 +181,11 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 				{
 					int newU = u + i[0];
 					int newV = v + i[1];
+
+					if (newU >= 13) newU = 13;
+					if (newV >= 11) newU = 11;
+					if (newU <= 0) newU = 0;
+					if (newV <= 0) newU = 0;
 
 					float dis = GetDistance(pos, balls[UVToIdx(newU, newV)]->CircleRenderer->getPos());
 
@@ -183,19 +200,13 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 				// 공 인덱스 전달
 				if (minDistance < 10.0f)
 				{
-					map->addBallandPop(minU, minV, balls[UVToIdx(minU, minV)]->Color);
+					map->addBallandPop(minV, minU, ball->Color);
 					GenerateNewBall();
 					return;
 				}
 			}
-
-			
-			
-
-			
 		}
-
-
+		bcanShoot = true;
 	}
 }
 
@@ -210,6 +221,22 @@ FVector UPlayer::UVToPos(FVector& zeropos, int u, int v)
 void UPlayer::IdxToUV(int& u, int& v, int idx)
 {
 	u = idx / 12; v = idx % 12;
+
+	//u = idx / 23;
+	//v = idx % 23;
+
+	//// lines 홀수 이냐 짝수이냐 에 따라서 12 또는 11로 변경한다.
+
+	//if (v > 11) 
+	//{
+	//	u++;
+	//	v = u + v - 12 ;
+	//}
+	//else if (v <= 11)
+	//{
+	//	v += u;
+	//}
+
 }
 
 int UPlayer::UVToIdx(int u, int v)
