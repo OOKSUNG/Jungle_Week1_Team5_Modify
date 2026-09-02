@@ -179,7 +179,9 @@ void UMap::addBallandPop(int ix, int iy, BallColors color)  // Player가 위치 
 				DropBall->CircleRenderer->setColor(Balls[i][j]->CircleRenderer->getColor());
 				DropBall->CircleRenderer->setPos(Balls[i][j]->CircleRenderer->getPos());
 				DropBall->CircleRenderer->setRadius(0.07f);
-				DropBall->SetVelocity({ 0.0f,0.01f,0.0f });
+				float x = (float)rand() / RAND_MAX * 0.01f;
+				if (rand() % 2) x *= -1;
+				DropBall->SetVelocity({ x,0.01f,0.0f });
 				DropBalls.push_back(DropBall);
 
 
@@ -336,6 +338,7 @@ void UMap::DropBallUpdate(float dt)
 			FVector DropBallPos = DropBalls[i]->CircleRenderer->getPos();
 			DropBalls[i]->Velocity.y = DropBalls[i]->Velocity.y - 0.1f * dt;
 			DropBallPos.y += DropBalls[i]->Velocity.y;
+			DropBallPos.x += DropBalls[i]->Velocity.x;
 			DropBalls[i]->CircleRenderer->setPos(DropBallPos);
 			if (DropBalls[i]->CircleRenderer->getPos().y < -1.1f)
 			{
