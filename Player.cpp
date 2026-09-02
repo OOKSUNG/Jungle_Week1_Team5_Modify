@@ -15,8 +15,13 @@ UPlayer::UPlayer()
 
 UPlayer::~UPlayer()
 {
-	if (!ball) delete ball;
+	if (ball) delete ball;
+	if (ball) delete map;
+}
 
+void UPlayer::SetMap(UMap* newmap)
+{
+	map = newmap;
 }
 
 void UPlayer::GenerateNewBall()
@@ -49,9 +54,7 @@ void UPlayer::Update()
 
 	//ball->CircleRenderer->setPos(FVector{ 0.0f + vel.x, -0.8f + vel.y , 0.0f + vel.z});
 
-	
-
-	//Collision(map->GetBalls(), map->GetLines());
+	Collision(map->GetBalls(), map->getLines());
 	WallCollision();
 
 	if (InputManager::GetInstance()->GetSTATUS()[LEFT])
@@ -92,9 +95,6 @@ FColor UPlayer::GenerateBallColor()
 	return color[rand() % 5];
 }
 
-std::vector<std::vector<int>> v11 = { { -1, -1 },{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 } };
-std::vector<std::vector<int>> v12 = { { -1, 0 },{ -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
-
 void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 {
 	int lastU = 0, lastV = 0;
@@ -102,21 +102,28 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 
 	for (int i = 0; i < balls.size(); i++)
 	{
-		// 불리언 변수로 충돌 할지 말지 판단
-		/*if (balls[i]->CircleRenderer.color == NullColor)
+		if (balls[i]->Color == EmptyColor)
 		{
 			continue;
-		}*/
+		}
 
 		FVector ballPos = balls[i]->CircleRenderer->getPos();
-		float dir = GetDistance(ballPos, MyPos);
+		float dir = GetDistance(ballPos, pos);
 
 		if (dir <= radius)
 		{
-			bisCollision = true;
+			if (balls[i]->Color == EmptyColor)
+			{
+				continue;
+			}
 
-			float minDistance = 0.0f;
-			int minU = 0 , minV = 0;
+
+			bisCollision = true;
+			OutputDebugStringA("!!! Collision Detection !!!\n");
+
+			float minDistance = 1000.0f;
+			int minU = 0;
+			int minV = 0;
 
 			// 공 위치 계산 하고 맵에 전달
 			int u, v;
@@ -131,9 +138,10 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 					int newU = u + i[0];
 					int newV = v + i[1];
 
-					float dis = GetDistance(MyPos, UVToPos(zeroPos, newU, newV));
+					// balls[i]->CircleRenderer->getPos();
+					float dis = GetDistance(pos, balls[UVToIdx(newU, newV)]->CircleRenderer->getPos());
 
-					if (minDistance > dis && balls[UVToIdx(newU, newV)].Color == EmptyColor)
+					if (minDistance > dis && balls[UVToIdx(newU, newV)]->Color == EmptyColor)
 					{
 						minDistance = dis;
 						minU = newU;
@@ -142,7 +150,13 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 				}
 
 				// 공 인덱스 전달
-				//map->addball(minU, minV);
+				if (minDistance < 10.0f)
+				{
+					map->addBallandPop(minU, minV, balls[UVToIdx(minU, minV)]->Color);
+					GenerateNewBall();
+					return;
+				}
+				
 
 			}
 
@@ -154,9 +168,9 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 					int newU = u + i[0];
 					int newV = v + i[1];
 
-					float dis = GetDistance(MyPos, UVToPos(zeroPos, newU, newV));
+					float dis = GetDistance(pos, balls[UVToIdx(newU, newV)]->CircleRenderer->getPos());
 
-					if (minDistance > dis && balls[UVToIdx(newU, newV)].Color == EmptyColor)
+					if (minDistance > dis && balls[UVToIdx(newU, newV)]->Color == EmptyColor)
 					{
 						minDistance = dis;
 						minU = newU;
@@ -165,7 +179,12 @@ void UPlayer::Collision(std::vector<UBall*> balls, int lines)
 				}
 
 				// 공 인덱스 전달
-				//map->addball(minU, minV);
+				if (minDistance < 10.0f)
+				{
+					map->addBallandPop(minU, minV, balls[UVToIdx(minU, minV)]->Color);
+					GenerateNewBall();
+					return;
+				}
 			}
 
 			
@@ -198,8 +217,8 @@ int UPlayer::UVToIdx(int u, int v)
 
 float UPlayer::GetDistance(FVector v1, FVector v2)
 {
-	int dx = v1.x - v2.x;
-	int dy = v1.y - v2.y;
+	float dx = v1.x - v2.x;
+	float dy = v1.y - v2.y;
 
 	return sqrt(dx * dx + dy * dy);
 }

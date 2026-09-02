@@ -260,6 +260,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	testMap->renderMap();
 
 	UPlayer player;
+	player.SetMap(testMap);
 
 	// Main Loop (Quit Message가 들어오기 전까지 아래 Loop를 무한히 실행하게 됨)
 	while (bIsExit == false)
@@ -286,9 +287,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 				//testMap->addBallandPop(7, 3, Green);
 
 				
-				testMap->addLine();
+				// estMap->addLine();
 				
-				testMap->renderMap();
+				// testMap->renderMap();
 
 				break;
 			}
@@ -302,7 +303,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 
 		////////////////////////////////////////////////////
 		// 매번 실행되는 코드를 여기에 추가
-
+		player.SetMap(testMap);
 		player.Update();
 
 

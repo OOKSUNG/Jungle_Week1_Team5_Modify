@@ -3,7 +3,7 @@
 #include "Triangle.h"
 #include "Ball.h"
 #include "Math.h"
-//#include "Map.h"
+#include "Map.h"
 
 const std::vector<FColor> color = {
 {1.0f, 0.0f, 0.0f, 1.0f},
@@ -25,12 +25,12 @@ private:
 	FVector vel = { 0.0, 0.0f, 0.0f };
 	FVector MyPos = { 0.0f, -0.5f , 0.0f };
 	FVector pos = { 0.0f, -0.8f, 0.0f };
-	//UMap* map;
+	UMap* map;
 
 public:
+	void SetMap(UMap* newmap);
 	void Update();
 	void Shoot();
-	void AddBall();
 	void Collision(std::vector<UBall*> balls, int lines);
 	void GenerateNewBall();
 	void WallCollision();
@@ -48,4 +48,6 @@ private:
 	const float rightBorder = 1.0f;
 	const float topBorder = -1.0f;
 	const float bottomBorder = 1.0f;
+	const std::vector<std::vector<int>> v11 = { { -1, -1 },{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 } };
+	const std::vector<std::vector<int>> v12 = { { -1, 0 },{ -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
 };
