@@ -217,6 +217,7 @@ void UMap::randMapGenerator() // 현재 3*GameCol 사이즈의 랜덤 맵만 생
 		{
 			UBall* Ball = new UBall();
 			if (i < rowCount) {
+				srand((unsigned int)time(NULL));
 				int randomColor = rand() % colorCount; // 랜덤 색상 생성
 				Ball->CircleRenderer->setColor(getColorFromEnum(static_cast<BallColors>(randomColor)));
 				Ball->Color = static_cast<BallColors>(randomColor);
@@ -354,5 +355,4 @@ bool UMap::isGameOver() //필요 없어짐
 UBall* (*UMap::GetBalls())[GameCol]
 {
 	return Balls;
-
 }
