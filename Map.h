@@ -16,6 +16,7 @@ public:
 	int Lines;
 	bool bGameOver;
 	UBall* Balls[GameRow][GameCol] = {};
+	vector<UBall*> DropBalls = {};
 public:
 	UMap()
 	{
@@ -37,4 +38,6 @@ public:
 	int getLines(); // return Lines
 	bool isGameOver(); // return bGameOver
 	vector<UBall*> GetBalls(); // return Balls in vector
+
+	void DropBallUpdate(float dt);
 };

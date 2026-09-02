@@ -7,6 +7,21 @@ using namespace std;
 
 void UMap::addBallandPop(int ix, int iy, BallColors color)  // Player가 위치 좌표 및 색상 정보를 담은 구조체를 입력하는걸로 변환 해야함
 {
+
+	//gameOver 밑에 초과해서 게임 오버 되는 경우에는 어디서 처리하게 할까?
+	/*
+	if (getLines() + getMaxRow() >= GameRow)
+	{
+		bGameOver = true;
+		//GameManager::GameOver()
+		UMapClear();
+		return;
+	}
+	*/
+
+	int AddedScore = 0;
+	int PopMul = 100;
+	int DropMul = 500;
 	int dx12[6] = { 1, -1, 0, 0, -1, -1 };
 	int dy12[6] = { 0, 0, 1, -1, 1, -1 };
 	int dx11[6] = { 1, -1, 0, 0, 1, 1 };
@@ -74,28 +89,19 @@ void UMap::addBallandPop(int ix, int iy, BallColors color)  // Player가 위치 
 			break;
 		}
 	}
+	
 
 	if (breakable.size() >= 3) // 3개 이상이면 Pop
 	{
+		AddedScore += breakable.size() * PopMul; // pop 점수 계산 추가
 		while (!breakable.empty())
 		{
-			BallData currentBall = breakable.front(); // breakable.front()에서 받은 위치 좌표에 속한 공을 Balls 배열에서 nullptr로 바꾸는 걸로 논리 수정해야함
+			BallData currentBall = breakable.front(); 
 			Balls[currentBall.y][currentBall.x]->CircleRenderer->setColor(getColorFromEnum(EmptyColor)); // Pop
 			Balls[currentBall.y][currentBall.x]->Color = EmptyColor;
 			breakable.pop();
 		}
 	}
-
-	//gameOver
-	/*
-	if (getLines() + getMaxRow() >= GameRow)
-	{
-		bGameOver = true;
-		//GameManager::GameOver()
-		UMapClear();
-		return;
-	}
-	*/
 
 	//Drop
 	queue<BallData> dq;
@@ -162,33 +168,44 @@ void UMap::addBallandPop(int ix, int iy, BallColors color)  // Player가 위치 
 		{
 			if (Balls[i][j] != nullptr && Balls[i][j]->Color != EmptyColor && !DropVisited[i][j])
 			{
+
+				AddedScore += DropMul; // Drop 점수 추가
+				UBall* DropBall = new UBall;
+				DropBall->CircleRenderer->setColor(Balls[i][j]->CircleRenderer->getColor());
+				DropBall->CircleRenderer->setPos(Balls[i][j]->CircleRenderer->getPos());
+				DropBall->CircleRenderer->setRadius(0.07f);
+				DropBall->SetVelocity({ 0.0f,0.01f,0.0f });
+				DropBalls.push_back(DropBall);
+
+
 				Balls[i][j]->CircleRenderer->setColor(getColorFromEnum(EmptyColor));
 				Balls[i][j]->Color = EmptyColor;
 			}
 		}
 	}
 	
+	//GameManager에 addedScore 전달
 	
 	
 	//Clear
-	/*
+	
 	for (int i = 0; i < GameCol; i++)
 	{
-		if (Balls[0][i] != nullptr)
+		if (Balls[0][i]->Color != EmptyColor)
 		{
 			break;
 		}
-		UMapClear();
+		//UMapClear();
+		//GameManager::Clear
 		return;
 	}
-	*/
 }
 
 
 
 void UMap::randMapGenerator() // 현재 3*GameCol 사이즈의 랜덤 맵만 생성하게 만들어져있음
 {
-	int colorCount = 5; // 색상 개수를 가정한 임시값 -> Enum 도입 후 수정 필요
+	int colorCount = 5;
 	int rowCount = 3; // 랜덤으로 생성할 행 개수 -> 레벨 스테이지 도입 시 수정 필요
 	
 	float BasicRadius = 0.07f;
@@ -285,31 +302,6 @@ void UMap::addLine()
 		Ball->Color = WallColor;
 		Balls[0][i] = Ball;
 	}
-	
-	/*
-	if (Lines % 2 == 0)
-	{
-		for (int i = 0; i < GameCol; i++)
-		{
-			UBall* Ball = new UBall();
-			Ball->CircleRenderer->setColor(getColorFromEnum(WallColor));
-			Ball->CircleRenderer->setRadius(BasicRadius);
-			Ball->Color = WallColor;
-			Balls[0][i] = Ball;
-		}
-	}
-	else
-	{
-		for (int i = 0; i < GameCol; i++)
-		{
-			UBall* Ball = new UBall();
-			Ball->CircleRenderer->setColor(getColorFromEnum(WallColor));
-			Ball->CircleRenderer->setRadius(BasicRadius);
-			Ball->Color = WallColor;
-			Balls[0][i] = Ball;
-		}
-	}
-	*/
 	if (bGameOver)
 	{
 		//GameManager::GameOver
@@ -329,7 +321,25 @@ void UMap::UMapClear()
 		}
 	}
 }
-int UMap::getLines() // 필요 없어짐
+void UMap::DropBallUpdate(float dt)
+{
+	if (!DropBalls.empty())
+	{
+		for (int i = 0; i < DropBalls.size(); i++)
+		{
+			FVector DropBallPos = DropBalls[i]->CircleRenderer->getPos();
+			DropBalls[i]->Velocity.y = DropBalls[i]->Velocity.y - 0.1f * dt;
+			DropBallPos.y += DropBalls[i]->Velocity.y;
+			DropBalls[i]->CircleRenderer->setPos(DropBallPos);
+			if (DropBalls[i]->CircleRenderer->getPos().y < -1.1f)
+			{
+				delete DropBalls[i];
+				DropBalls.erase(DropBalls.begin() + i);
+			}
+		}
+	}
+}
+int UMap::getLines()
 {
 	return Lines;
 }
@@ -344,7 +354,7 @@ bool UMap::isGameOver() //필요 없어짐
 vector<UBall*> UMap::GetBalls()
 {
 	vector<UBall*> ballVector;
-	for (int i = 0; i < GameRow; i++) //플레이어 라인 제외
+	for (int i = 0; i < GameRow-1; i++) //플레이어 라인 제외
 	{
 		for (int j = 0; j < GameCol; j++)
 		{
