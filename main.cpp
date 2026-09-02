@@ -282,19 +282,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 			// 메시지를 적절한 위도우 프리시저에 전달, 메시지가 위에서 등록한 WndProc 으로 전달됨
 			DispatchMessage(&msg);
 
-			if (msg.message == WM_KEYDOWN)
+			/*
+			if (msg.message == WM_LBUTTONDOWN)
 			{
 				
-				//testMap->addBallandPop(5, 3, Green);
+				testMap->addBallandPop(5, 5, Green);
 				//testMap->addBallandPop(7, 3, Green);
 
 				
-				// estMap->addLine();
+				testMap->addLine();
 				
-				// testMap->renderMap();
+				//testMap->renderMap();
 
 				break;
 			}
+
+			if (msg.message == WM_CHAR)
+			{
+				testMap->addLine();
+				testMap->renderMap();
+				break;
+			}
+			*/
 
 			if (msg.message == WM_QUIT)
 			{
@@ -307,6 +316,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 		// 매번 실행되는 코드를 여기에 추가
 		player.SetMap(testMap);
 		player.Update();
+		testMap->DropBallUpdate(DeltaTime);
 
 
 		// 준비 작업

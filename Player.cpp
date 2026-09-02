@@ -31,6 +31,8 @@ void UPlayer::GenerateNewBall()
 	pos = BallPosition;
 	vel = FVector(0.0f, 0.0f, 0.0f);
 
+
+
 	ball = new UBall;
 	BallColors newColor =static_cast<BallColors>(GenerateBallColor());
 	ball->Color = newColor;
