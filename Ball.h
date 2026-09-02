@@ -21,8 +21,7 @@ public:
 		Radius = 0.01f + ((float)rand() / RAND_MAX) * 0.1f;
 		Mass = Radius * 10.0f;
 
-		
-		CircleRenderer = new Circle();
+		CircleRenderer = new Circle;
 	}
 
 	~UBall() override

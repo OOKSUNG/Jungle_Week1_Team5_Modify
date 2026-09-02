@@ -54,7 +54,7 @@ void Renderable::RenderAll(URenderer& renderer) {
 	for (int i = 0; i < renderables.size(); i++) {
 		if (renderables[i] != nullptr)
 		{
-			renderables[i]->Render(renderer);
+			renderables[i]->Render(renderer);	
 		}
 	}
 }
@@ -74,4 +74,12 @@ void Renderable::setColor(FColor newColor) {
 
 void Renderable::setRadius(float newRadius) {
 	radius = newRadius;
+}
+
+FVector Renderable::getPos() {
+	return pos;
+}
+
+FColor Renderable::getColor() {
+	return color;
 }
