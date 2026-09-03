@@ -26,7 +26,7 @@ void ActiveScene::update()
 
 	if (sceneRequested != nullptr) {
 		if (currentScene != nullptr)
-			delete currentScene;
+ 			delete currentScene;
 
 		currentScene = sceneRequested;
 		sceneRequested = nullptr;

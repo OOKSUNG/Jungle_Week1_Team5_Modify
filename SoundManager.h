@@ -4,7 +4,7 @@
 
 enum class ESoundEffect
 {
-    //ESE_Start,
+    ESE_Start,
     ESE_BGM,
     //ESE_End,
 
@@ -18,6 +18,9 @@ enum class ESoundEffect
     ESE_Fall,
     ESE_Bonus,
 
+    ESE_Lightning,
+    ESE_Bomb,
+
     ESE_Max
 };
 
@@ -29,6 +32,8 @@ public:
     static SoundManager* GetInstance();
 
     void PlaySoundEffect(ESoundEffect soundEffect);
+    void StopSoundEffect(ESoundEffect soundEffect);
+    void StopAllSoundEffect();
     void Update();
 
 private:
@@ -37,11 +42,16 @@ private:
 
 private:
     static SoundManager* Manager;
-    
+  
+    enum
+    {
+        MAX_CHANNELS_COUNT = 32
+    };
+
     FMOD::System* SoundSystem;
     FMOD::Sound* Sounds[static_cast<unsigned int>(ESoundEffect::ESE_Max)];
     
     // Todo: Can reuse channels
-    FMOD::Channel* Channels[static_cast<unsigned int>(ESoundEffect::ESE_Max)];
+    FMOD::Channel* ChannelsOrNull[MAX_CHANNELS_COUNT];
 };
 

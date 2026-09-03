@@ -36,7 +36,7 @@ void UBall::Update()
 	Location.y += Velocity.y;
 }
 
-bool UBall::CheckCollision(UPrimitive* targetball) 
+bool UBall::CheckCollision(UBall* targetball) 
 {
 	float TotalRadius = Radius + targetball->GetRadius();
 
@@ -44,7 +44,7 @@ bool UBall::CheckCollision(UPrimitive* targetball)
 	else return false;
 }
 
-void UBall::ResolveCollision(UPrimitive* targetball) 
+void UBall::ResolveCollision(UBall* targetball)
 {
 	FVector TargetLocation = targetball->GetLocation();
 	FVector TargetVelocity = targetball->GetVelocity();
@@ -91,7 +91,7 @@ void UBall::ResolveCollision(UPrimitive* targetball)
 	targetball->SetVelocity(TargetVelocity);
 }
 
-float UBall::GetDistance(UPrimitive* targetball)
+float UBall::GetDistance(UBall* targetball)
 {
 	FVector TargetLocation = targetball->GetLocation();
 

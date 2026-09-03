@@ -90,10 +90,16 @@
     <ClCompile Include="GamePlay.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="GamePlayObjects.cpp">
+    <ClCompile Include="Result.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Result.cpp">
+    <ClCompile Include="Player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BallColor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,9 +137,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Primitive.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Ball.h">
@@ -196,10 +199,19 @@
     <ClInclude Include="GamePlay.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="GamePlayObjects.h">
+    <ClInclude Include="Result.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Result.h">
+    <ClInclude Include="Player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BallColor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EImage.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

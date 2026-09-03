@@ -7,8 +7,6 @@ enum StartMenuState {
 	BackGround,
 };
 
-
-
 class StartMenu : public Scene {
 	Square* backGround = nullptr;
 	Square* foreGround = nullptr;

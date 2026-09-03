@@ -1,7 +1,6 @@
 #pragma once
+
 #include "Renderable.h"
-#include "Renderer.h"
-#include "Math.h"
 
 class Square : public Renderable {
 public:
@@ -10,5 +9,10 @@ public:
 		FColor newColor,
 		float newRadius,
 		EImage image);
+	Square(FVector newPos,
+		FColor newColor,
+		float newRadius,
+		EImage image,
+		int layer);
 	void Render(URenderer& renderer) override;
 };

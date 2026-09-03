@@ -3,6 +3,8 @@
 class Scene {
 public:
 	virtual void update() = 0;
+
+	virtual ~Scene() = default;
 };
 
 class ActiveScene {

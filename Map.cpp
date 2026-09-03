@@ -1,0 +1,628 @@
+#include "Map.h"
+#include <iostream>
+#include "GamePlay.h"
+
+using namespace std;
+
+#include "BallColor.h"
+#include "SoundManager.h"
+
+//#include "GameManager.h"
+
+void UMap::addBallandPop(int ix, int iy, BallColors color, bool gameover)  // Player가 위치 좌표 및 색상 정보를 담은 구조체를 입력하는걸로 변환 해야함
+{
+	/*
+	if (getLines() + getMaxRow() >= GameRow)
+	{
+		bGameOver = true;
+		//GameManager::GameOver()
+		UMapClear();
+		return;
+	}
+	*/
+
+	int AddedScore = 0;
+	int PopMul = 100;
+	int DropMul = 500;
+	int dx12[6] = { 1, -1, 0, 0, -1, -1 };
+	int dy12[6] = { 0, 0, 1, -1, 1, -1 };
+	int dx11[6] = { 1, -1, 0, 0, 1, 1 };
+	int dy11[6] = { 0, 0, 1, -1, 1, -1 };
+	int PopVisited[GameRow][GameCol] = { 0, };
+	PopVisited[iy][ix] = 1;
+
+	//addBall
+	Balls[iy][ix]->Color = color;
+	Balls[iy][ix]->CircleRenderer->setColor(getColorFromEnum(color));
+	Balls[iy][ix]->CircleRenderer->setImage(TransformBallColorsToEImage(color));
+
+	queue<BallData> q; // 위치 좌표 및 색상 정보를 담은 구조체로 변환 해야함
+	queue<BallData> breakable; // 파괴할 공을 담는 큐 이것 또한 위치 좌표 및 색상 정보를 담은 구조체로 변환 해야함
+
+	BallData RootBall;
+	RootBall.x = ix;
+	RootBall.y = iy;
+	RootBall.color = color;
+	q.push(RootBall); // Player가 새로 추가한 공을 root
+	breakable.push(RootBall);
+
+	//is using lightening
+	for (int i = 0; i < 6; i++)
+	{
+		int nx = ix;
+		int ny = iy;
+		if (nx >= 0 && nx < GameCol && ny >= 0 && ny < GameRow - 1)
+		{
+			if ((iy + Lines) % 2)
+			{
+				nx += dx11[i];
+				ny += dy11[i];
+			}
+			else
+			{
+				nx += dx12[i];
+				ny += dy12[i];
+			}
+
+			if (Balls[ny][nx] != nullptr && Balls[ny][nx]->Color == Lightning)
+			{
+				SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_Lightning);
+
+				for (int k = 0; k < GameCol; k++)
+				{
+					if (Balls[ny][k] == nullptr)
+					{
+						continue;
+					}
+					UBall* PopBall = new UBall(
+						Balls[ny][k]->CircleRenderer->getPos(),
+						Balls[ny][k]->CircleRenderer->getColor(),
+						0.07f,
+						TransformBallColorsToEImage(Balls[ny][k]->Color)
+					);                                   
+					float x = (float)rand() / RAND_MAX * 0.01f;
+					if (rand() % 2) x *= -1;
+					PopBall->SetVelocity({ x,0.01f,0.0f });
+					DropBalls.push_back(PopBall);
+
+					Balls[ny][k]->CircleRenderer->setColor(getColorFromEnum(EmptyColor)); // Pop
+					Balls[ny][k]->CircleRenderer->setImage(TransformBallColorsToEImage(EmptyColor));
+					Balls[ny][k]->Color = EmptyColor;
+
+				}
+
+			}
+		}
+	}
+
+	//is using bomb
+	for (int i = 0; i < 6; i++)
+	{
+		int nx = ix;
+		int ny = iy;
+		if ((iy + Lines) % 2)
+		{
+			nx += dx11[i];
+			ny += dy11[i];
+		}
+		else
+		{
+			nx += dx12[i];
+			ny += dy12[i];
+		}
+
+		if (nx >= 0 && nx < GameCol && ny >= 0 && ny < GameRow - 1 && Balls[ny][nx] != nullptr && Balls[ny][nx]->Color == Bomb)
+		{
+			SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_Bomb);
+
+			for (int k = 0; k < 6; k++)
+			{
+				int bx = nx;
+				int by = ny;
+				if ((by + Lines) % 2)
+				{
+					bx += dx11[k];
+					by += dy11[k];
+				}
+				else
+				{
+					bx += dx12[k];
+					by += dy12[k];
+				}
+				if (bx >= 0 && bx < GameCol && by >= 0 && by < GameRow - 1 && Balls[by][bx] != nullptr && Balls[by][bx]->Color != EmptyColor)
+				{
+					if (Balls[by][bx] == nullptr)
+					{
+						continue;
+					}
+					UBall* PopBall = new UBall(
+						Balls[by][bx]->CircleRenderer->getPos(),
+						Balls[by][bx]->CircleRenderer->getColor(),
+						0.07f,
+						TransformBallColorsToEImage(Balls[by][bx]->Color)
+					);                                     
+					float x = (float)rand() / RAND_MAX * 0.07f;
+					if (rand() % 2) x *= -1;
+					PopBall->SetVelocity({ x,0.06f,0.0f });
+					DropBalls.push_back(PopBall);
+					Balls[by][bx]->CircleRenderer->setColor(getColorFromEnum(EmptyColor)); // Pop
+					Balls[by][bx]->CircleRenderer->setImage(TransformBallColorsToEImage(EmptyColor));                                                 
+					Balls[by][bx]->Color = EmptyColor;
+				}
+				for (int j = 0; j < 6; j++)
+				{
+					int mx = bx;
+					int my = by;
+					if ((my + Lines) % 2)
+					{
+						mx += dx11[j];
+						my += dy11[j];
+					}
+					else
+					{
+						mx += dx12[j];
+						my += dy12[j];
+					}
+					if (mx >= 0 && mx < GameCol && my >= 0 && my < GameRow - 1 && Balls[my][mx] != nullptr && Balls[my][mx]->Color != EmptyColor)
+					{
+						if (Balls[my][mx] == nullptr)
+						{
+							continue;
+						}
+						UBall* PopBall = new UBall(
+							Balls[my][mx]->CircleRenderer->getPos(),
+							Balls[my][mx]->CircleRenderer->getColor(),
+							0.07f,
+							TransformBallColorsToEImage(Balls[my][mx]->Color)
+						);                                  
+						float x = (float)rand() / RAND_MAX * 0.07f;
+						if (rand() % 2) x *= -1;
+						PopBall->SetVelocity({ x,0.06f,0.0f });
+						DropBalls.push_back(PopBall);
+						Balls[my][mx]->CircleRenderer->setColor(getColorFromEnum(EmptyColor)); // Pop
+						Balls[my][mx]->CircleRenderer->setImage(TransformBallColorsToEImage(EmptyColor));
+						Balls[my][mx]->Color = EmptyColor;
+					}
+				}
+			}
+
+		}
+	}
+
+
+	//Pop
+	for (int i = 0; i < 50; i++) //BFS를 통해 같은 색의 공을 탐색하고, 3개 이상이면 Pop
+	{
+		BallData currentBall = q.front(); //현재공 좌표 업데이트, 공에서 색 추출 필요
+
+		for (int k = 0; k < 6; k++)
+		{
+			int nx = 0;
+			int ny = 0;
+			if ((Lines + currentBall.y) % 2 == 0) 
+			{
+				nx = currentBall.x + dx12[k];
+				ny = currentBall.y + dy12[k];
+			}
+			else
+			{
+				nx = currentBall.x + dx11[k];
+				ny = currentBall.y + dy11[k];
+			}
+
+			if (nx >= 0 && nx < GameCol && ny >= 0 && ny < GameRow - 1)
+			{
+				if (!Balls[ny][nx])
+				{
+					continue;
+				}
+
+				if (Balls[ny][nx]->Color == EmptyColor)
+				{
+					continue;
+				}
+				if (Balls[ny][nx] != nullptr && Balls[ny][nx]->Color == currentBall.color && !PopVisited[ny][nx])
+				{
+					PopVisited[ny][nx] = 1;
+					BallData newBallData;
+					newBallData.x = nx;
+					newBallData.y = ny;
+					newBallData.color = Balls[ny][nx]->Color;
+					q.push(newBallData);
+					breakable.push(newBallData);
+				}
+			}
+		}
+
+		q.pop();
+
+		if (q.empty())
+		{
+			break;
+		}
+	}
+
+	if (breakable.size() < 3 && gameover)
+	{
+		gameplay->requestResult(false);
+		return;
+	}
+	
+
+	if (breakable.size() >= 3) // 3개 이상이면 Pop
+	{
+		SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_Fall);
+
+		AddedScore += breakable.size() * PopMul; // pop 점수 계산 추가
+		while (!breakable.empty())
+		{
+			BallData currentBall = breakable.front(); 
+
+			UBall* PopBall = new UBall(
+				Balls[currentBall.y][currentBall.x]->CircleRenderer->getPos(),
+				Balls[currentBall.y][currentBall.x]->CircleRenderer->getColor(),
+				0.07f,
+				TransformBallColorsToEImage(currentBall.color)
+				);
+
+
+			float x = (float)rand() / RAND_MAX * 0.01f;
+			if (rand() % 2) x *= -1;
+			PopBall->SetVelocity({ x,0.01f,0.0f });
+			DropBalls.push_back(PopBall);
+
+			Balls[currentBall.y][currentBall.x]->Color = EmptyColor;
+			Balls[currentBall.y][currentBall.x]->CircleRenderer->setImage(TransformBallColorsToEImage(EmptyColor));
+			Balls[currentBall.y][currentBall.x]->CircleRenderer->setImage(TransformBallColorsToEImage(EmptyColor));
+			breakable.pop();
+		}
+	}
+
+	//Drop
+	queue<BallData> dq;
+	int DropVisited[GameRow][GameCol] = { 0, };
+
+	for(int i = 0; i < GameCol; i++)
+	{
+		if (Balls[Lines][i]->Color == EmptyColor || Balls[Lines][i] == nullptr)
+		{
+			continue;
+		}
+		
+		BallData RootBall;
+		RootBall.x = i;
+		RootBall.y = Lines;
+		RootBall.color = Balls[Lines][i]->Color;
+
+		dq.push(RootBall);
+		DropVisited[Lines][i] = 1;
+
+		for (int k = 0; k < 50; k++)
+		{
+			BallData currentBall = dq.front();
+
+			for (int j = 0; j < 6; j++)
+			{
+				int nx = 0;
+				int ny = 0;
+				if ((Lines + currentBall.y) % 2 == 0)
+				{
+					nx = currentBall.x + dx12[j];
+					ny = currentBall.y + dy12[j];
+				}
+				else
+				{
+					nx = currentBall.x + dx11[j];
+					ny = currentBall.y + dy11[j];
+				}
+				if (nx >= 0 && nx < GameCol && ny >= 0 && ny < GameRow)
+				{
+					if (Balls[ny][nx] != nullptr && Balls[ny][nx]->Color != EmptyColor && !DropVisited[ny][nx])
+					{
+						DropVisited[ny][nx] = 1;
+						BallData newBallData;
+						newBallData.x = nx;
+						newBallData.y = ny;
+						newBallData.color = Balls[ny][nx]->Color;
+						dq.push(newBallData);
+					}
+				}
+			}
+			dq.pop();
+
+			if (dq.empty())
+			{
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < GameRow; i++)
+	{
+		for (int j = 0; j < GameCol; j++)
+		{
+			if (Balls[i][j] != nullptr && Balls[i][j]->Color != EmptyColor && !DropVisited[i][j])
+			{
+
+				AddedScore += DropMul; // Drop 점수 추가
+
+				UBall* DropBall = new UBall(
+					Balls[i][j]->CircleRenderer->getPos(),
+					Balls[i][j]->CircleRenderer->getColor(),
+					0.07f,
+					TransformBallColorsToEImage(Balls[i][j]->Color)
+				);
+
+				float x = (float)rand() / RAND_MAX * 0.01f;
+				if (rand() % 2) x *= -1;
+				DropBall->SetVelocity({ x,0.01f,0.0f });
+				DropBalls.push_back(DropBall);
+
+				Balls[i][j]->CircleRenderer->setImage(TransformBallColorsToEImage(EmptyColor));
+				Balls[i][j]->Color = EmptyColor;
+			}
+		}
+	}
+	
+	//GameManager에 addedScore 전달
+	gameplay->score += AddedScore;
+	
+	//Clear
+	for (int i = 0; i < GameCol; i++)
+	{
+		if (Balls[0][i]->Color != EmptyColor)
+		{
+			break;
+		}
+		gameplay->requestResult(true);
+		return;
+	}
+}
+
+void UMap::randMapGenerator() // 현재 3*GameCol 사이즈의 랜덤 맵만 생성하게 만들어져있음
+{
+	int colorCount = 5;
+	int rowCount = 8; // 랜덤으로 생성할 행 개수 -> 레벨 스테이지 도입 시 수정 필요
+	
+	float BasicRadius = 0.07f;
+	FColor BasicColor = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+	FVector tempPos = { 0, 0, 0 };
+
+	for (int i = 0; i < GameRow-1 ; i++)
+	{
+		for (int j = 0; j < GameCol; j++)
+		{
+			UBall* ball;
+			if (i < rowCount) {
+			
+				BallColors randomColor = static_cast<BallColors>(rand() % colorCount); // 랜덤 색상 생성
+
+				ball = new UBall(
+					tempPos,
+					getColorFromEnum(randomColor),
+					BasicRadius,
+					TransformBallColorsToEImage(randomColor)
+				);
+
+				ball->Color = randomColor;
+			}	
+			else 
+			{
+				ball = new UBall(
+					tempPos,
+					getColorFromEnum(EmptyColor),
+					BasicRadius,
+					TransformBallColorsToEImage(EmptyColor)
+				);
+
+				ball->Color = EmptyColor;
+			}
+
+			if (i == 6 && j == 0)
+			{
+				ball->Color = Red;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Red));
+			}
+			if (i == 6 && j == 1)
+			{
+				ball->Color = Red;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Red));
+			}
+			if (i == 6 && j == 2)
+			{
+				ball->Color = Red;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Red));
+			}
+			if (i == 6 && j == 3)
+			{
+				ball->Color = Red;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Red));
+			}
+
+			if (i == 7 && j == 5)
+			{
+				ball->Color = Bomb;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Bomb));
+			}
+
+			if (i == 2 && j == 3)
+			{
+				ball->Color = Bomb;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Bomb));
+			}
+
+			if (i == 4 && j == 8)
+			{
+				ball->Color = Bomb;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Bomb));
+			}
+
+			if (i == 5 && j == 7)
+			{
+				ball->Color = Lightning;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Lightning));
+			}
+
+			if (i == 0 && j == 1)
+			{
+				ball->Color = Lightning;
+				ball->CircleRenderer->setImage(TransformBallColorsToEImage(Lightning));
+			}
+
+
+			Balls[i][j] = ball;
+		}
+	}
+}
+
+void UMap::renderMap()
+{
+	float BasicRadius = 0.07f;
+	FVector BasicLocation = { -0.83f , 0.9f, 0.0f };
+	FColor BasicColor = { 1.0f, 1.0f, 0.0f, 1.0f };
+
+	for (int i = 0; i < GameRow-1 ; i++)
+	{
+		for (int j = 0; j < GameCol; j++)
+		{
+			FVector AddLocation = { BasicRadius * 2.1f * j, BasicRadius * 1.8f * i, 0.0f };
+			FVector FinalLocation = { BasicLocation.x + AddLocation.x, BasicLocation.y - AddLocation.y , BasicLocation.z + AddLocation.z };
+			if(Balls[i][j] != nullptr)
+				Balls[i][j]->CircleRenderer->setPos(FinalLocation);
+			if ((i + Lines) % 2 != 0)
+			{
+				if (j == GameCol - 1) // 홀수행의 마지막 공은 생성하지 않음
+				{
+					delete Balls[i][j];
+					Balls[i][j] = nullptr;
+				}
+				if (Balls[i][j] != nullptr)
+					Balls[i][j]->CircleRenderer->setPos(FVector{ FinalLocation.x + BasicRadius, FinalLocation.y, FinalLocation.z });
+			}
+		}
+	}
+}
+void UMap::addLine() 
+{
+	SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_Add);
+
+	Lines++;
+	float BasicRadius = 0.07f;
+	
+	for (int i = 0; i < GameCol; i++) // 초반에 게임오버 여부 판단하고 라인추가 실행 후 게임오버 전달
+	{
+		if (Balls[GameRow - 2][i] != nullptr && Balls[GameRow - 2][i]->Color != EmptyColor)
+		{
+			bGameOver = true; 
+		}
+	}
+
+	for (int i = 0; i < GameCol; i++)
+	{
+		if(Balls[GameRow - 2][i] != nullptr)
+		{
+			delete Balls[GameRow-2][i];
+			Balls[GameRow-2][i] = nullptr;
+		}
+	}
+	for (int i = GameRow - 2; i > 0; i--)
+	{
+		for (int j = 0; j < GameCol; j++)
+		{
+			{
+				Balls[i][j] = Balls[i - 1][j];
+			}
+		}
+	}
+
+	for (int i = 0; i < GameCol; i++)
+	{
+		if (Balls[0][i] != nullptr)
+		{
+			Balls[0][i] = nullptr;
+		}
+
+		UBall* Ball = new UBall(FVector(0.0f, 0.0f, 0.0f),
+			getColorFromEnum(WallColor),
+			BasicRadius,
+			TransformBallColorsToEImage(WallColor)
+		);
+
+		Ball->Color = WallColor;
+		Balls[0][i] = Ball;
+	}
+	if (bGameOver)
+	{
+		gameplay->requestResult(false);
+		return;
+	}
+}
+void UMap::UMapClear()
+{
+	for (int i = 0; i < GameRow; i++)
+	{
+		for (int j = 0; j < GameCol; j++)
+		{
+			if (Balls[i][j] != nullptr)
+			{
+				delete Balls[i][j];
+				Balls[i][j] = nullptr;
+			}
+		}
+	}
+	for (auto& i : DropBalls)
+	{
+		delete i;
+	}
+	DropBalls.clear();
+}
+void UMap::DropBallUpdate(float dt)
+{
+	if (!DropBalls.empty())
+	{
+		for (int i = 0; i < DropBalls.size(); i++)
+		{
+			int MaxCount = 1;
+			FVector DropBallPos = DropBalls[i]->CircleRenderer->getPos();
+			DropBalls[i]->Velocity.y = DropBalls[i]->Velocity.y - 0.1f * dt;
+			DropBallPos.y += DropBalls[i]->Velocity.y;
+			DropBallPos.x += DropBalls[i]->Velocity.x;
+			DropBalls[i]->CircleRenderer->setPos(DropBallPos);
+			if (DropBalls[i]->CircleRenderer->getPos().y < -1.05f)
+			{
+				if (DropBalls[i]->BounceCnt >= MaxCount)
+				{
+					delete DropBalls[i];
+					DropBalls.erase(DropBalls.begin() + i);
+					continue;
+				}
+				else
+				{
+					DropBalls[i]->Velocity.y = DropBalls[i]->Velocity.y * -0.4f;
+					DropBalls[i]->BounceCnt += 1;
+				}
+			}
+		}
+	}
+}
+void UMap::getGamePlay(GamePlay* gameplay)
+{
+	this->gameplay = gameplay;
+}
+int UMap::getLines()
+{
+	return Lines;
+}
+int UMap::getMaxRow() // 필요 없어짐 
+{
+	return 3;
+}
+bool UMap::isGameOver() //필요 없어짐 
+{
+	return bGameOver;
+}
+UBall* (*UMap::GetBalls())[GameCol]
+{
+	return Balls;
+}

@@ -6,10 +6,12 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
+#include <cassert>
 #include <string>
 #include <vector>
 
-#include "Math.h"
+#include "BallColor.h"
+#include "EImage.h"
 
 struct FVertexSimple
 {
@@ -26,40 +28,6 @@ struct FConstants
 	FColor Color;
 };
 
-enum EImage
-{
-	EI_Number_0,
-	EI_Number_1,
-	EI_Number_2,
-	EI_Number_3,
-	EI_Number_4,
-	EI_Number_5,
-	EI_Number_6,
-	EI_Number_7,
-	EI_Number_8,
-	EI_Number_9,
-
-	EI_BackgroundStart,
-	EI_BackgroundStart_With_Menu,
-	EI_BackgroundGame,
-	EI_BackgroundEnd,
-	
-	EI_ButtonCredit,
-	EI_ButtonReplay,
-	EI_ButtonExit,
-	
-	EI_StringTotalScore,
-	EI_StringGameClear,
-	
-	EI_BallYellow,
-	EI_BallRed,
-	EI_BallPurple,
-	EI_BallGreen,
-	EI_BallBlue,
-	EI_BallBlack,
-
-	EI_MAX
-};
 
 class URenderer
 {

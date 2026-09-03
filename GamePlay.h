@@ -1,26 +1,27 @@
 #pragma once
 #include "Scene.h"
 #include "Square.h"
-#include "GamePlayObjects.h"
-
+#include "Player.h"
+#include "Map.h"
 
 class GamePlay : public Scene {
-	Square* backGround;
+	Square* backGround = nullptr;
 
-	Map map;
-	Player player;
-	GameManager gameManager;
+	UMap* map = nullptr;
+	UPlayer* player = nullptr;
 
 	bool resultRequested = false;
 	bool returnCleared = false;
-	int returnScore = 0;
+
 
 public:
 	GamePlay();
-	~GamePlay();
+	virtual ~GamePlay() override;
+
+	int score = 0;
 
 	// called by ActiveScene (every frame)
 	void update() override;
 	// called by objects
-	void requestResult(bool returnCleared, int returnScore);
+	void requestResult(bool returnCleared);
 };

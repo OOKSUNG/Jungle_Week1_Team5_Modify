@@ -1,12 +1,14 @@
 #pragma once
-#include "Primitive.h"
-#include "Math.h"
+
+#include "Circle.h"
+#include "BallColor.h"
+
 #define BALLSPEED 0.01f
 
-class UBall : public UPrimitive
+class UBall //: public UPrimitive
 {
 public:
-	UBall()
+	UBall(FVector pos, FColor color, float radius, EImage image)
 	{
 		TotalNumBalls += 1;
 
@@ -18,13 +20,20 @@ public:
 
 		Radius = 0.01f + ((float)rand() / RAND_MAX) * 0.1f;
 		Mass = Radius * 10.0f;
+
+
+
+		CircleRenderer = new Circle(pos, color, radius, image);
 	}
 
-	~UBall() override
+	~UBall()
 	{
+		delete CircleRenderer;
+
 		TotalNumBalls -= 1;
 	}
 
+	/*
 	float GetRadius() override;
 	float GetMass() override;
 	FVector GetLocation() override;
@@ -34,8 +43,20 @@ public:
 	void Update() override;
 	bool CheckCollision(UPrimitive* targetball) override;
 	void ResolveCollision(UPrimitive* targetball) override;
-	float GetDistance(UPrimitive* targetball);
-	void Gravity(float dt) override;
+	*/
+
+	float GetRadius();
+	float GetMass();
+	FVector GetLocation();
+	FVector GetVelocity();
+	void SetLocation(FVector vector);
+	void SetVelocity(FVector vector);
+	void Update();
+	bool CheckCollision(UBall* targetball);
+	void ResolveCollision(UBall* targetball);
+
+	float GetDistance(UBall* targetball);
+	void Gravity(float dt);
 	float Dot(FVector v1, FVector v2);
 
 public:
@@ -45,4 +66,8 @@ public:
 	float Mass;
 	static int TotalNumBalls;
 	static bool bGravity;
+
+	Circle* CircleRenderer;
+	BallColors Color;
+	int BounceCnt = 0;
 };

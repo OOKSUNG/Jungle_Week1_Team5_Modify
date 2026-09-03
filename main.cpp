@@ -8,7 +8,6 @@
 #include "Math.h"
 #include "Renderer.h"
 #include "Sphere.h"
-#include "Primitive.h"
 #include "Ball.h"
 #include "Circle.h"
 #include "Triangle.h"
@@ -92,6 +91,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Signal that the app should quit
 		OutputDebugStringA("!!! WM_DESTROY !!!\n");
 		PostQuitMessage(0);
+
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -149,31 +149,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	double elapsedTime = 0.0;
 
 	float DeltaTime = (float)(elapsedTime / 1000.0);
-	bool bIsExit = false;
+	bool bExit = false;
 
 	// Initialize
 	{
 		renderer.InitializeResources();
 
-		//SoundManager::CreateInstance();
+		SoundManager::CreateInstance();
 		InputManager::GetInstance();
 	}
 
 	// Start scene
 	{
-		Square* startBackGround = new Square(FVector{ 0.0f, 0.0f, 0.0f }, FColor{ 0.5f, 0.3f, 0.5f }, 1.f, EImage::EI_BackgroundStart);
+		//Square* startBackGround = new Square(FVector{ 0.0f, 0.0f, 0.0f }, FColor{ 0.5f, 0.3f, 0.5f }, 1.f, EImage::EI_BackgroundStart);
 
 		//delete startBackGround;
 		//SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_BGM);
 	}
 
-	bool bWithMenu = false;
-
 	ActiveScene* activeScene = ActiveScene::getInstance();
 	activeScene->setInitialScene(new StartMenu());
 
 	// Main Loop 
-	while (!activeScene->programEnd)
+	while (bExit == false)
 	{
 		DeltaTime = (float)(elapsedTime / 1000.0);
 		QueryPerformanceCounter(&startTime);
@@ -186,27 +184,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 
 			if (msg.message == WM_QUIT)
 			{
-				bIsExit = true;
+				bExit = true;
+				
 				break;
 			}
 		}
 
 		// System update
 		{
-			
-			//SoundManager::GetInstance()->Update();
-
-			/*
-			if (InputManager::GetInstance()->GetState(EKeyStatus::SPACE))
-			{
-				OutputDebugStringA("Space pressed");
-			}
-			*/
+			SoundManager::GetInstance()->Update();
 		}
 
 		// Update
 		{
 			activeScene->update();
+
+			if (activeScene->programEnd)
+			{
+				bExit = true;
+			}
 		}
 
 		// Render
@@ -214,26 +210,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 			renderer.Prepare();
 			renderer.PrepareShader();
 
-			// Todo: Test start scene
-			/*
-			{
-				if (bWithMenu)
-				{
-					renderer.SetTextureSRV(EImage::EI_Number_9);
-					bWithMenu = false;
-				}
-				else
-				{
-					renderer.SetTextureSRV(EImage::EI_BallRed);
-					bWithMenu = true;
-				}
-			}
-			*/
-
 			Renderable::RenderAll(renderer);
 		}
 
 		// Update ImGui
+		/*
 		{
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
@@ -249,6 +230,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 			ImGui::Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		}
+		*/
 
 		renderer.SwapBuffer();
 
@@ -273,7 +255,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPervInstance, LPSTR lpCmdLine
 	renderer.Release();
 
 	{
-		//SoundManager::DeleteInstance();
+		SoundManager::DeleteInstance();
 		ActiveScene::DestroyInstance();
 		InputManager::DestroyInstance();
 	}

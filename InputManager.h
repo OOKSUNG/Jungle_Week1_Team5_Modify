@@ -39,6 +39,7 @@ private:
 public:
 	bool* GetSTATUS() { return bKeyStatus; }
 	bool GetState(EKeyStatus key) { return bKeyStatus[key]; }
+	void SetState(EKeyStatus key, bool value) { bKeyStatus[key] = value; }
 
 	void OnKeyDown(EKeyStatus key) { bKeyStatus[key] = true; }
 	void OnKeyUP(EKeyStatus key) { bKeyStatus[key] = false; }

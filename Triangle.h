@@ -2,6 +2,7 @@
 #include "Renderable.h"
 #include "Renderer.h"
 #include "Math.h"
+
 class Triangle : Renderable {
 public:
 	Triangle(FVector newPos,

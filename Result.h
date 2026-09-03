@@ -29,19 +29,19 @@ class Result : public Scene {
 	static constexpr float totalScoreSize = 0.5f;
 
 	Square* p10000 = nullptr;
-	const FVector p10000Pos = FVector{ 0.4f, 0.0f, 0.0f };
+	const FVector p10000Pos = FVector{ 0.38f, 0.0f, 0.0f };
 	int p10000Num = 0;
 	Square* p01000 = nullptr;
-	const FVector p01000Pos = FVector{ 0.5f, 0.0f, 0.0f };
+	const FVector p01000Pos = FVector{ 0.49f, 0.0f, 0.0f };
 	int p01000Num = 0;
 	Square* p00100 = nullptr;
 	const FVector p00100Pos = FVector{ 0.6f, 0.0f, 0.0f };
 	int p00100Num = 0;
 	Square* p00010 = nullptr;
-	const FVector p00010Pos = FVector{ 0.7f, 0.0f, 0.0f };
+	const FVector p00010Pos = FVector{ 0.71f, 0.0f, 0.0f };
 	int p00010Num = 0;
 	Square* p00001 = nullptr;
-	const FVector p00001Pos = FVector{ 0.8f, 0.0f, 0.0f };
+	const FVector p00001Pos = FVector{ 0.82f, 0.0f, 0.0f };
 	int p00001Num = 0;
 	static constexpr float pSize = 0.1f;
 

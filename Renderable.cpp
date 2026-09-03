@@ -1,16 +1,17 @@
 #include "Renderable.h"
 
-std::vector<Renderable*> Renderable::renderables;
+std::vector<Renderable*> Renderable::renderables[3];
 
 Renderable::Renderable() {
-	int slot = getFirstEmpty();
+	layer = 1;
+	int slot = getFirstEmpty(1);
 	if (slot == -1) {
-		slotNo = renderables.size();
-		renderables.push_back(this);
+		slotNo = renderables[1].size();
+		renderables[1].push_back(this);
 	}
 	else {
 		slotNo = slot;
-		renderables[slot] = this;
+		renderables[1][slot] = this;
 	}
 }
 
@@ -27,35 +28,50 @@ Renderable::Renderable(FVector newPos,
 	color.G = newColor.G;
 	color.B = newColor.B;
 	radius = newRadius;
-
-	int slot = getFirstEmpty();
+	layer = 1;
+	int slot = getFirstEmpty(1);
 	if (slot == -1) {
-		slotNo = renderables.size();
-		renderables.push_back(this);
+		slotNo = renderables[1].size();
+		renderables[1].push_back(this);
 	}
 	else {
 		slotNo = slot;
-		renderables[slot] = this;
+		renderables[1][slot] = this;
+	}
+}
+
+Renderable::Renderable(FVector newPos, FColor newColor, float newRadius, EImage eImage, int layer)
+	:pos(newPos), color(newColor), radius(newRadius), eImage(eImage), layer(layer)
+{
+	int slot = getFirstEmpty(layer);
+	if (slot == -1) {
+		slotNo = renderables[layer].size();
+		renderables[layer].push_back(this);
+	}
+	else {
+		slotNo = slot;
+		renderables[layer][slot] = this;
 	}
 }
 
 Renderable::~Renderable() {
-	renderables[slotNo] = nullptr;
+	renderables[layer][slotNo] = nullptr;
 }
 
-int Renderable::getFirstEmpty() {
-	for (int i = 0; i < renderables.size(); i++) {
-		if (renderables[i] == nullptr)
+int Renderable::getFirstEmpty(int layer) {
+	for (int i = 0; i < renderables[layer].size(); i++) {
+		if (renderables[layer][i] == nullptr)
 			return i;
 	}
 	return -1;
 }
 
 void Renderable::RenderAll(URenderer& renderer) {
-	for (int i = 0; i < renderables.size(); i++) {
-		if (renderables[i] != nullptr)
+	for (int j = 2; j >= 0; j--)
+	for (int i = 0; i < renderables[j].size(); i++) {
+		if (renderables[j][i] != nullptr)
 		{
-			renderables[i]->Render(renderer);
+			renderables[j][i]->Render(renderer);
 		}
 	}
 }
@@ -74,4 +90,18 @@ void Renderable::setColor(FColor newColor) {
 
 void Renderable::setRadius(float newRadius) {
 	radius = newRadius;
+}
+
+void Renderable::setImage(EImage image)
+{
+	eImage = image;
+}
+
+
+FVector Renderable::getPos() {
+	return pos;
+}
+
+FColor Renderable::getColor() {
+	return color;
 }

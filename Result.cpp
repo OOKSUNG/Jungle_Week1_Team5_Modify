@@ -1,7 +1,11 @@
 #include "Result.h"
+
 #include "GamePlay.h"
+#include "StartMenu.h"
+
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include "SoundManager.h"
 
 void Result::createMany()
 {
@@ -9,7 +13,7 @@ void Result::createMany()
 	if (bGameCleared)
 		gameClear = new Square(titlePos, dummy, titleSize, EImage::EI_StringGameClear);
 	else
-		gameOver = new Square(titlePos, dummy, titleSize, EImage::EI_StringGameClear);
+		gameOver = new Square(titlePos, dummy, titleSize, EImage::EI_StringGameOver);
 
 	totalScore = new Square(totalScorePos, dummy, totalScoreSize, EImage::EI_StringTotalScore);
 
@@ -27,6 +31,15 @@ void Result::createMany()
 Result::Result(bool bGameCleared, int score):
 	bGameCleared(bGameCleared), score(score)
 {
+	if (bGameCleared)
+	{
+		SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_Win);
+	}
+	else
+	{
+		SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_Lost);
+	}
+
 	p00001Num = score % 10;
 	score /= 10;
 	p00010Num = score % 10;
@@ -37,6 +50,8 @@ Result::Result(bool bGameCleared, int score):
 	score /= 10;
 	p10000Num = score % 10;
 	loadReplayButtonState();
+
+	//SoundManager::GetInstance()->PlaySoundEffect(ESoundEffect::ESE_End);
 }
 
 Result::~Result()
@@ -54,6 +69,9 @@ Result::~Result()
 	if (replayButton != nullptr) delete replayButton;
 	if (exitButton != nullptr) delete exitButton;
 	if (credit != nullptr) delete credit;
+
+
+	SoundManager::GetInstance()->StopAllSoundEffect();
 }
 
 void Result::loadCreditButtonState()
@@ -76,8 +94,16 @@ void Result::loadReplayButtonState()
 {
 	FColor dummy = FColor{ 0,0,0,0 };
 	if (currentState == Initial || currentState == Credit) {
-		if (currentState == Initial)
-			backGround = new Square(backGroundPos, dummy, backGroundSize, EImage::EI_BackgroundEnd);
+		if (currentState == Initial) {
+			if (bGameCleared)
+			{
+				backGround = new Square(backGroundPos, dummy, backGroundSize, EImage::EI_BackgroundGameClear, 2);
+			}
+			else
+			{
+				backGround = new Square(backGroundPos, dummy, backGroundSize, EImage::EI_BackgroundGameOver, 2);
+			}
+		}
 		else {
 			delete credit;
 			credit = nullptr;
@@ -136,7 +162,7 @@ void Result::loadCreditState()
 	replayButton = nullptr;
 	exitButton = nullptr;
 
-	credit = new Square(creditPos, dummy, creditSize, EImage::EI_BallYellow); // TODO: add Credit Texture
+	credit = new Square(creditPos, dummy, creditSize, EImage::EI_Credit); // TODO: add Credit Texture
 	currentState = Credit;
 }
 
@@ -150,11 +176,10 @@ static double currentWave(int& current, int period) {
 
 void Result::update()
 {
-	
 	if (currentState == ReplayButton) {
 		double wave = currentWave(frameCounter, period);
 		float size = buttonSize + wave * buttonSize;
-		replayButton->setRadius(size);
+ 		replayButton->setRadius(size);
 		if (lastPressing == Initial) {
 			counter2++;
 			if (counter2 > freezingFrameTime) {
@@ -165,9 +190,13 @@ void Result::update()
 			if (InputManager::GetInstance()->GetState(EKeyStatus::SPACE))
 			{
 				lastPressing = SPACE;
+				InputManager::GetInstance()->SetState(EKeyStatus::SPACE, false);
+
 				ActiveScene* activeScene = ActiveScene::getInstance();
-				GamePlay* newGameplay = new GamePlay();
-				activeScene->requestChangeScene(newGameplay);
+				//GamePlay* newGameplay = new GamePlay();
+				StartMenu* newStartMenu = new StartMenu();
+				
+				activeScene->requestChangeScene(newStartMenu);
 			}
 			else if (InputManager::GetInstance()->GetState(EKeyStatus::LEFT)) {
 				lastPressing = LEFT;

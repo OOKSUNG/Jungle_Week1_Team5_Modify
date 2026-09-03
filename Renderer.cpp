@@ -8,6 +8,8 @@
 #define STB_IMAGE_IMPLEMENTATION 
 #include "stb_image.h"
 
+#include "EImage.h"
+
 void URenderer::Create(HWND hWindow)
 {
 	// Direct3D 장치 및 스왑 체인 생성
@@ -414,19 +416,29 @@ void URenderer::InitializeResources()
 			"Resources/Images/Background_Start.png",
 			"Resources/Images/Background_Start_With_Menu.png",
 			"Resources/Images/Background_Game.png",
-			"Resources/Images/Background_End.png",
+			"Resources/Images/Background_Game_Clear.png",
+			"Resources/Images/Background_Game_Over.png",
+
 			"Resources/Images/Button_Credit.png",
 			"Resources/Images/Button_Replay.png",
 			"Resources/Images/Button_Exit.png",
+
 			"Resources/Images/String_Total_Score.png",
 			"Resources/Images/String_Game_Clear.png",
+			"Resources/Images/String_Game_Over.png",
 
-			"Resources/Images/Ball_Yellow.png",
 			"Resources/Images/Ball_Red.png",
+			"Resources/Images/Ball_Blue.png",
+			"Resources/Images/Ball_Yellow.png",
 			"Resources/Images/Ball_Purple.png",
 			"Resources/Images/Ball_Green.png",
-			"Resources/Images/Ball_Blue.png",
 			"Resources/Images/Ball_Black.png",
+			"Resources/Images/Ball_Wall.png",
+			"Resources/Images/Ball_Bomb.png",
+			"Resources/Images/Ball_Lightning.png",
+			"Resources/Images/Ball_Transparent.png",
+
+			"Resources/Images/Credit.png",
 		};
 
 		ID3D11ShaderResourceView* textureSRV = nullptr;
